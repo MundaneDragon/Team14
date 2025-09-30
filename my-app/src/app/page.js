@@ -6,6 +6,7 @@ import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import EventCard from "./components/eventCard";
+import MainBody from "./components/mainBody";
 
 const all = [
   {title: "2025 CEUS AGM", 
@@ -51,10 +52,9 @@ const rec = [
 
 export default function Home() {
   const [recommendedEvents, setRecommendedEvents] = useState(rec)
-  const [allEvents, setAllEvents] = useState(all)
+  const [allEvents, setAllEvents] = useState([])
   return (
-    <div className="min-h-screen w-full flex justify-center pt-24 pb-12 px-4">
-      <div className="w-5xl flex flex-col">
+    <MainBody>
         <div>
           <div className="flex justify-between items-center border-gray-700 border-b-1 pb-4">
             <div className="flex gap-2">
@@ -81,6 +81,14 @@ export default function Home() {
               return <EventCard key={index} eventData={eventData}/>
             })}
           </div>
+          {recommendedEvents.length === 0 && 
+            <div className="text-white/60 flex flex-col w-full items-center">
+              No recommendations yet. 
+              <span> 
+                Follow societies to receive recommendations!
+              </span>
+            </div>
+          }
         </div>
         <div className="ml-2">
           <h1 className="text-3xl lg:text-4xl font-semibold my-8 w-min text-nowrap ">
@@ -91,8 +99,15 @@ export default function Home() {
               return <EventCard key={index} eventData={eventData}/>
             })}
           </div>
+          {allEvents.length === 0 && 
+            <div className="text-white/60 flex flex-col w-full items-center">
+              We couldn't find any matching results. 
+              <span> 
+                Please try a different search criteria
+              </span>
+            </div>
+          }
         </div>
-      </div>
-    </div>
+    </MainBody>
   );
 }
