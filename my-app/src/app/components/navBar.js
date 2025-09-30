@@ -3,7 +3,7 @@ import Groups2OutlinedIcon from '@mui/icons-material/Groups2Outlined';
 
 export default function NavBar() {
     return (
-        <div className="absolute w-dvw bg-[#101727] border-b-1 border-gray-800">
+        <div className="absolute w-full bg-[#101727] border-b-1 border-gray-800">
             <div className="p-4 flex justify-between">
                 <div className="flex justify-center gap-12">
                     <div className="flex gap-2 items-center">

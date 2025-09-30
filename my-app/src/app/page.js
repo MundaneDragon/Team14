@@ -5,42 +5,55 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
+import EventCard from "./components/eventCard";
+
+const all = [
+  {title: "2025 CEUS AGM", 
+      clubLogo: "/society.webp", 
+      society: "UNSW Chemical Engineering Undergraduate Society",
+      time: "9 Oct 2024, 6:00 PM", 
+      picture: "/society.webp"}, 
+      
+    {title: "2025 CEUS AGM", 
+      clubLogo: "/society.webp", 
+      society: "UNSW Chemical Engineering Undergraduate Society",
+      time: "9 Oct 2024, 6:00 PM", 
+      picture: "/society.webp"},
+    {title: "2025 CEUS AGM", 
+      clubLogo: "/society.webp", 
+      society: "UNSW Chemical Engineering Undergraduate Society",
+      time: "9 Oct 2024, 6:00 PM", 
+      picture: "/society.webp"},
+    {title: "2025 CEUS AGM", 
+      clubLogo: "/society.webp", 
+      society: "UNSW Chemical Engineering Undergraduate Society",
+      time: "9 Oct 2024, 6:00 PM", 
+      picture: "/society.webp"},
+    {title: "2025 CEUS AGM", 
+      clubLogo: "/society.webp", 
+      society: "UNSW Chemical Engineering Undergraduate Society",
+      time: "9 Oct 2024, 6:00 PM", 
+      picture: "/society.webp"},
+    {title: "2025 CEUS AGM", 
+      clubLogo: "/society.webp", 
+      society: "UNSW Chemical Engineering Undergraduate Society",
+      time: "9 Oct 2024, 6:00 PM", 
+      picture: "/society.webp"}
+]
+
+const rec = [
+  {title: "2025 CEUS AGM", 
+      clubLogo: "/society.webp", 
+      society: "UNSW Chemical Engineering Undergraduate Society",
+      time: "9 Oct 2024, 6:00 PM", 
+      picture: "/society.webp"}
+]
 
 export default function Home() {
-  const [recommendedEvents, setRecommendedEvents] = useState([
-    {
-      title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"
-    },  {
-      title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"
-    }, {
-      title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"
-    }
-  ])
-
-
-  const [allEvents, setAllEvents] = useState([
-    {
-      title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"
-    }, 
-  ])
+  const [recommendedEvents, setRecommendedEvents] = useState(rec)
+  const [allEvents, setAllEvents] = useState(all)
   return (
-    <div className="min-h-screen w-full flex justify-center pt-24">
+    <div className="min-h-screen w-full flex justify-center pt-24 pb-12 px-4">
       <div className="w-5xl flex flex-col">
         <div>
           <div className="flex justify-between items-center">
@@ -60,20 +73,20 @@ export default function Home() {
           </div>
         </div>
         <div className="ml-2">
-          <h1 className="text-4xl font-semibold my-8">
+          <h1 className="text-3xl lg:text-4xl font-semibold my-8">
             Recommended
           </h1>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {recommendedEvents.map((eventData, index) => {
               return <EventCard key={index} eventData={eventData}/>
             })}
           </div>
         </div>
         <div className="ml-2">
-          <h1 className="text-4xl font-semibold my-8">
+          <h1 className="text-3xl lg:text-4xl font-semibold my-8">
             All Events
           </h1>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {allEvents.map((eventData, index) => {
               return <EventCard key={index} eventData={eventData}/>
             })}
@@ -82,44 +95,4 @@ export default function Home() {
       </div>
     </div>
   );
-}
-
-
-function EventCard({eventData}) {
-  useEffect(() => {
-    console.log(eventData)
-  }, [])
-  return (
-    <div className="w-full hover:scale-105 transition-all cursor-pointer">
-        <div className={`w-full h-40 bg-gray-400 rounded-xl bg-cover bg-center flex items-end p-4 group`}
-          style={{ backgroundImage: `url(${eventData.picture})` }}
-        >
-          <div className="w-full justify-between text-center text-black text-xs gap-4 opacity-0 flex group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-            <div className="w-full bg-white flex items-center justify-center py-2 rounded-xl gap-1 hover:bg-[#d9dce1] ">
-              Add to Calender <CalendarTodayOutlinedIcon fontSize="small"/>
-            </div>
-            <div className="w-full bg-[#A3CBFF] flex items-center justify-center py-2 rounded-xl gap-1 hover:bg-[#99bae4]">
-              Want to network <LanOutlinedIcon fontSize="small"/>
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-2 mt-4 items-center">
-          <img src={eventData.clubLogo} className="w-6 h-6 rounded-sm"/>
-          <div className="flex flex-col ">
-            <h2 className="font-semibold">
-              {eventData.title}
-            </h2>
-            <div className="flex flex-col text-gray-400 text-xs">
-              <p className="">
-                {eventData.society}
-              </p>
-              <p>
-                {eventData.time}
-              </p>
-            </div>
-
-          </div>
-        </div>
-    </div>
-  )
 }
