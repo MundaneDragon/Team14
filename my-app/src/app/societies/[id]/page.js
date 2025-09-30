@@ -3,9 +3,19 @@ import MainBody from '@/app/components/mainBody'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import StarIcon from '@mui/icons-material/Star';
+// import StarIcon from '@mui/icons-material/Star';
+import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons"
 import EmailIcon from '@mui/icons-material/Email';
 import EventCard from '@/app/components/eventCard';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectTriggerSort
+} from "@/app/components/select";
+
 const fakeData = {
 		id: 2309322,
 		name: "180 Accounting",
@@ -45,6 +55,7 @@ export default function Society() {
     events: []
   })
   const [favourites, setFavourites] = useState([])
+  const [sort, setSort] = useState("Name A-Z");
 
   const params = useParams()
   
@@ -61,7 +72,21 @@ export default function Society() {
               <div className={`h-54 w-54 bg-gray-400 rounded-full bg-cover bg-center flex items-end justify-end `}
                 style={{ backgroundImage: `url(${societyData.image})` }}
               >
-                  <div className="h-12 w-12 rounded-full bg-[#101727] flex items-center justify-center cursor-pointer hover:scale-105"
+                <div className="h-12 w-12 rounded-full bg-[#101727] flex items-center justify-center cursor-pointer hover:scale-105"
+                  onClick={
+                      (e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                      }
+                  }
+                  >
+                      {favourites.includes(societyData.id) ? (
+                          <StarFilledIcon className="w-6 h-6 text-[#FFDFA3]"/>
+                      ) : (
+                          <StarIcon className="w-6 h-6 text-[#FFFFFF]"/>
+                      )}
+                  </div>
+                  {/* <div className="h-12 w-12 rounded-full bg-[#101727] flex items-center justify-center cursor-pointer hover:scale-105"
                   onClick={
                       (e) => {
                           e.stopPropagation();
@@ -75,7 +100,7 @@ export default function Society() {
                           },
                       }}
                       />
-                  </div>
+                  </div> */}
               </div>
           </div>
         {/* <div className='flex gap-2'>
@@ -98,9 +123,20 @@ export default function Society() {
     </div>
     <div className='w-full flex justify-end pt-8'>
       <div className="border-l-1 pl-4">
-        <span className="cursor-pointer">
+        <Select value={sort} onValueChange={(val) => setSort(val)}>
+          <SelectTriggerSort>
+            <SelectValue />
+          </SelectTriggerSort>
+          <SelectContent>
+            <SelectItem value="Name A-Z">Name A-Z</SelectItem>
+            <SelectItem value="Name Z-A">Name Z-A</SelectItem>
+            <SelectItem value="Latest">Latest</SelectItem>
+            <SelectItem value="Soonest">Soonest</SelectItem>
+          </SelectContent>
+        </Select>
+        {/* <span className="cursor-pointer">
           Name<KeyboardArrowDownOutlinedIcon/>
-        </span>
+        </span> */}
       </div>
     </div>
     <h2 className="text-2xl font-semibold my-4 w-min text-nowrap ">
