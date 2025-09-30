@@ -1,6 +1,7 @@
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import Groups2OutlinedIcon from '@mui/icons-material/Groups2Outlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
+import HubIcon from '@mui/icons-material/Hub';
 import Link from "next/link";
 
 export default function NavBar() {
@@ -26,6 +27,12 @@ export default function NavBar() {
                             <Groups2OutlinedIcon/>
                             Societies
                         </Link>
+                        <Link className='flex gap-2 cursor-pointer hover:text-gray-200'
+                        href="/network">
+                            <HubIcon/>
+                            Your Network
+                        </Link>
+                        
                     </div>
                 </div>
                 <div className="flex gap-4 font-semibold">
