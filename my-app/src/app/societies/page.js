@@ -7,6 +7,14 @@ import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import MainBody from "../components/mainBody";
 import SocietyCard from "../components/societyCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectTriggerSort
+} from "../components/select";
 
 const example = [
 	{
@@ -27,6 +35,8 @@ const example = [
 const fav = [32321, 2309322, 219839321, 29183]
 
 export default function Societies({}) {
+  const [category, setCategory] = useState("");
+  const [sort, setSort] = useState("Name A-Z");
   const [favsocieties, setFavsocieties] = useState([])
   const [allSocieties, setAllSocieties] = useState([])
 	const [favourites, setFavourites] = useState([])
@@ -47,14 +57,45 @@ export default function Societies({}) {
         <div>
           <div className="flex justify-between items-center border-gray-700 border-b-1 pb-4">
             <div className="flex gap-2">
-              <div className="border border-gray-700 py-2 pl-4 pr-2 rounded-full cursor-pointer hover:bg-gray-800 transition-all duration-200">
-                Categories <KeyboardArrowDownOutlinedIcon/>
-              </div>
+              <Select value={category} onValueChange={(val) => setCategory(val === "Any" ? "" : val)}>
+                <SelectTrigger className={category && "bg-white text-black"}>
+                  <SelectValue placeholder="Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Any" className="text-[rgba(0,0,0,0.25)]">Any</SelectItem>
+                  <SelectItem value="Academic">Academic</SelectItem>
+                  <SelectItem value="Academic and Professional">Academic and Professional</SelectItem>
+                  <SelectItem value="Charity & Social Impact">Charity & Social Impact</SelectItem>
+                  <SelectItem value="Community & Inclusion">Community & Inclusion</SelectItem>
+                  <SelectItem value="Faculty & Constituent">Faculty & Constituent</SelectItem>
+                  <SelectItem value="Fitness & Recreation">Fitness & Recreation</SelectItem>
+                  <SelectItem value="Food & Drink">Food & Drink</SelectItem>
+                  <SelectItem value="Games & Animation">Games & Animation</SelectItem>
+                  <SelectItem value="Hobby & Special Interest">Hobby & Special Interest</SelectItem>
+                  <SelectItem value="International & Cultural">International & Cultural</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="Political">Political</SelectItem>
+                  <SelectItem value="Postgraduate">Postgraduate</SelectItem>
+                  <SelectItem value="Professional & Networking">Professional & Networking</SelectItem>
+                  <SelectItem value="Residential">Residential</SelectItem>
+                  <SelectItem value="Spirituality & Faith">Spirituality & Faith</SelectItem>
+                  <SelectItem value="Sports and Fitness">Sports and Fitness</SelectItem>
+                  <SelectItem value="Technology & Projects">Technology & Projects</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="border-l-1 pl-4">
-              <span className="cursor-pointer">
-                Name<KeyboardArrowDownOutlinedIcon/>
-              </span>
+              <Select value={sort} onValueChange={(val) => setSort(val)}>
+                <SelectTriggerSort>
+                  <SelectValue />
+                </SelectTriggerSort>
+                <SelectContent>
+                  <SelectItem value="Name A-Z">Name A-Z</SelectItem>
+                  <SelectItem value="Name Z-A">Name Z-A</SelectItem>
+                  <SelectItem value="Latest">Latest</SelectItem>
+                  <SelectItem value="Soonest">Soonest</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

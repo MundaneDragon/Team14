@@ -1,5 +1,3 @@
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import Groups2OutlinedIcon from '@mui/icons-material/Groups2Outlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import Link from "next/link";
 
@@ -9,21 +7,13 @@ export default function NavBar() {
         <div className="absolute w-full bg-[#101727] border-b-1 border-gray-800">
             <div className="p-4 justify-between md:flex hidden">
                 <div className="flex justify-center gap-12">
-                    <div className="flex gap-2 items-center cursor-pointer">
-                        <img src="/googleiconrm.png" className="w-8 h-8" />
-                        <h1 className="font-bold text-xl">
+                    <div className="flex gap-8 items-center cursor-pointer">
+                        <Link className="font-bold text-xl" href="/">
                             NetHub
-                        </h1>
-                    </div>
-                    <div className="flex items-center text-gray-300 gap-8">
-                        <Link className='flex gap-2 cursor-pointer hover:text-gray-200'
-                        href="/">
-                            <HomeOutlinedIcon/>
-                            Events
                         </Link>
-                        <Link className='flex gap-2 cursor-pointer hover:text-gray-200'
+
+                        <Link className='flex gap-2 cursor-pointer text-gray-500 hover:text-white transition-all duration-300 ease-in-out'
                         href="/societies">
-                            <Groups2OutlinedIcon/>
                             Societies
                         </Link>
                     </div>
