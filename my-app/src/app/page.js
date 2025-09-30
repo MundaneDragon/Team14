@@ -52,7 +52,7 @@ const rec = [
 
 export default function Home() {
   const [recommendedEvents, setRecommendedEvents] = useState(rec)
-  const [allEvents, setAllEvents] = useState([])
+  const [allEvents, setAllEvents] = useState(all)
   return (
     <MainBody>
         <div>
@@ -72,11 +72,11 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="ml-2">
+        <div className="">
           <h1 className="text-3xl lg:text-4xl font-semibold mb-8 mt-4 w-min">
             Recommended
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {recommendedEvents.map((eventData, index) => {
               return <EventCard key={index} eventData={eventData}/>
             })}
@@ -90,11 +90,11 @@ export default function Home() {
             </div>
           }
         </div>
-        <div className="ml-2">
+        <div className="">
           <h1 className="text-3xl lg:text-4xl font-semibold my-8 w-min text-nowrap ">
             All Events
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {allEvents.map((eventData, index) => {
               return <EventCard key={index} eventData={eventData}/>
             })}
