@@ -1,4 +1,5 @@
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
+import HubIcon from '@mui/icons-material/Hub';
 import Link from "next/link";
 
 export default function NavBar() {
@@ -16,6 +17,12 @@ export default function NavBar() {
                         href="/societies">
                             Societies
                         </Link>
+                        <Link className='flex gap-2 cursor-pointer hover:text-gray-200'
+                        href="/network">
+                            <HubIcon/>
+                            Your Network
+                        </Link>
+                        
                     </div>
                 </div>
                 <div className="flex gap-4 font-semibold">
