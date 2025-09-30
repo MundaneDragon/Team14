@@ -62,7 +62,7 @@ export default function Societies({}) {
           <h1 className="text-3xl lg:text-4xl font-semibold mb-8 mt-4 w-min">
             Favourites
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-5 gap-4">
             {favsocieties.map((data, index) => {
               return <SocietyCard key={index} data={data} favourites={favourites}/>
             })}
@@ -77,7 +77,7 @@ export default function Societies({}) {
           <h1 className="text-3xl lg:text-4xl font-semibold my-8 w-min text-nowrap ">
             All Societies
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {allSocieties.map((data, index) => {
               return <SocietyCard key={index} data={data} favourites={favourites}/>
             })}

@@ -32,5 +32,6 @@ export default function SocietyCard({data, favourites}) {
         <div className="text-sm font-semibold">
             {data.name}
         </div>
-    </Link>)
+    </Link>
+    )
 }
