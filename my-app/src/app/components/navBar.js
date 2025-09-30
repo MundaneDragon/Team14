@@ -17,21 +17,25 @@ export default function NavBar() {
                         href="/societies">
                             Societies
                         </Link>
-                        <Link className='flex gap-2 cursor-pointer hover:text-gray-200'
+                        <Link className='flex gap-2 cursor-pointer text-gray-500 hover:text-white transition-all duration-300 ease-in-out'
                         href="/network">
-                            <HubIcon/>
-                            Your Network
+                            {/* <HubIcon/> */}
+                            Network
                         </Link>
                         
                     </div>
                 </div>
                 <div className="flex gap-4 font-semibold">
-                    <button className="bg-blue-400/90 p-2 rounded w-24 cursor-pointer hover:bg-blue-400/80 ">
-                        Register
-                    </button>
-                    <button className="bg-white/90 p-2 rounded w-24 cursor-pointer hover:bg-white/80 text-black ">
-                        Login 
-                    </button>
+                    <Link href="/register">
+                        <button className="bg-blue-400/90 p-2 rounded w-24 cursor-pointer hover:bg-blue-400/80 ">
+                            Register
+                        </button>
+                    </Link>
+                    <Link href="/login">
+                        <button className="bg-white/90 p-2 rounded w-24 cursor-pointer hover:bg-white/80 text-black ">
+                            Login 
+                        </button>
+                    </Link>
                 </div>
             </div>
             <div className="p-4 flex justify-between md:hidden items-center">

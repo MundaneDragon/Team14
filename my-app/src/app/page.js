@@ -15,6 +15,14 @@ import {
   SelectValue,
   SelectTriggerSort
 } from "./components/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./components/dialog";
 
 const all = [
   {title: "2025 CEUS AGM", 
@@ -121,7 +129,14 @@ export default function Home() {
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {recommendedEvents.map((eventData, index) => (
-              <EventCard key={index} eventData={eventData}/>
+              <Dialog>
+                <DialogTrigger>
+                  <EventCard key={index} eventData={eventData}/>
+                </DialogTrigger>
+                <DialogContent>
+                  <div className="w-[160px] h-[40px] bg-red-500" />
+                </DialogContent>
+              </Dialog>
             ))}
           </div>
           {recommendedEvents.length === 0 && 

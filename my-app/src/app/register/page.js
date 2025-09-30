@@ -1,27 +1,56 @@
-import SignCard from "../components/signCard"
-import TextField from '@mui/material/TextField';
+"use client"
+import { useState } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { useRouter } from "next/navigation";
+
+import RegisterStep0 from '../components/registerStep0';
+import RegisterStep1 from '../components/registerStep1';
 
 export default function Register() {
+    const router = useRouter();
 
+    const methods = useForm({
+        mode: "onSubmit",
+        defaultValues: {
+            email: "",
+            username: "",
+            password: "",
+        }
+    });
+
+    const nextStep = async () => {
+        const fieldsToValidate =
+        step === 0 ? ["email"] :
+        step === 1 ? ["username", "password"] : [];
+
+        const valid = await methods.trigger(fieldsToValidate);
+        if (valid) {
+            setStep((prev) => prev + 1);
+        }
+    }
+    const prevStep = () => setStep((prev) => prev - 1);
+
+    const onSubmit = async ({ email, username, password }) => {
+        try {
+            // await signUp({ email, username, password });
+            router.push("/");
+        } catch (err) {
+            alert(`Signup failed: ${err.message}`);
+        }
+    }
+
+    const [step, setStep] = useState(0);
+    const steps = [
+        <RegisterStep0 nextStep={nextStep} />, 
+        <RegisterStep1 prevStep={prevStep} onSubmit={onSubmit} />
+    ];
 
     return (
-        <div className="flex w-full h-dvh justify-center items-center">
-            <SignCard>
-                <img src="/googleiconrm.png" className="w-32 h-32"/>
-                <h1 className="text-4xl font-semibold text-nowrap my-16">
-                    Start <span className="text-[#A3CBFF]"> networking</span>
-                </h1>
-                <input  className="bg-[#282828] p-4 w-full rounded-xl" placeholder="Enter your email address"/>
-                <button className="w-full p-4 rounded-xl my-4 bg-white/50">
-                    Continue
-                </button>
-                <p className="text-nowrap text-gray-400">
-                    Already have an account? <span className="underline text-white">
-                        Log in here
-                    </span>
-                </p>
-            </SignCard>
-        </div>
+        <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+                {steps[step]}
+            </form>
+        </FormProvider>
     )
 }
 

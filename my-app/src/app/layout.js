@@ -1,5 +1,4 @@
 import "./globals.css";
-import NavBar from "./components/navBar";
 
 export const metadata = {
   title: "Create Next App",
@@ -12,7 +11,6 @@ export default function RootLayout({ children }) {
       <body
         className={"antialiased bg-[#131418] text-white"}
       > 
-        <NavBar/>
         <main className="text-white">
           {children}
         </main>
