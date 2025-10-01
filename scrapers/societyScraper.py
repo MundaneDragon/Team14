@@ -38,12 +38,12 @@ def main():
         time.sleep(2)
 
         #Uncomment this when you want to go through every event
-        # while True:
-        #     try: 
-        #         driver.find_element(By.XPATH, "//*[text()='Load More']").click()
-        #         time.sleep(0.5)
-        #     except Exception:
-        #         break
+        while True:
+            try: 
+                driver.find_element(By.XPATH, "//*[text()='Load More']").click()
+                time.sleep(0.5)
+            except Exception:
+                break
         
         # time.sleep(1)
         cards = WebDriverWait(driver, 10).until(
@@ -69,7 +69,7 @@ def main():
                 # print("destination is", dest)
                 # print(card.text)
 
-        print(dict)
+        #print(dict)
         time.sleep(2)
 
         # id, societyName, societyImage, societyUniversity, societyDesc, socialMedia, 
@@ -99,7 +99,7 @@ def main():
                 # Maybe social media later but we don't have time for it right now 
                 # details["socialMedia"] = 
                 time.sleep(1)
-                print(key, dict[key])
+                #print(key, dict[key])
             except Exception: 
                 print("Something did not work")
                 print(key)
@@ -107,9 +107,8 @@ def main():
         # At this point we've gone through all the societies
         break 
     
-    print(dict)
-    print(len(dict))
-    print("Scraping completed!")
+    #print(dict)
+    print("Scraping completed! Upserted " + str(len(dict)) " societies")
     driver.quit()
 
     for id, society in dict.items(): 

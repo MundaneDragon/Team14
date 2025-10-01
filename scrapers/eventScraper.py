@@ -138,8 +138,8 @@ def main():
         # At this point we've gone through all the events
         break 
 
-    print(dict)
-    print("Scraping completed!")
+    #print(dict)
+    print("Scraping completed! Upserted " + str(len(dict)) + " events")
     driver.quit()
 
     for id, event in dict.items():
