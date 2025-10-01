@@ -16,45 +16,31 @@ import {
   SelectTriggerSort
 } from "../components/select";
 
-const example = [
-	{
-		id: 32321,
-		name: "180 Degrees Accounting",
-		image: "/societylogo.webp",
-	}, {
-		id: 329823,
-		name: "180 Degrees ",
-		image: "/societylogo.webp",
-	}, {
-		id: 2309322,
-		name: "180 Accounting",
-		image: "/societylogo.webp",
-	}, 
-]
-
-const fav = [32321, 2309322, 219839321, 29183]
+import { fetchSocieties, fetchFavourites } from "@/lib/fetch";
 
 export default function Societies({}) {
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("Name A-Z");
-  const [favsocieties, setFavsocieties] = useState([])
   const [allSocieties, setAllSocieties] = useState([])
 	const [favourites, setFavourites] = useState([])
 
 	useEffect(() => {
-		const res = example
-		setAllSocieties(res)
-		setFavourites(fav)
+    const handleFetch = async () => {
+      try {
+        const societies = await fetchSocieties();
+        setAllSocieties(societies);
 
-		const newFavSocieties = []
-		for (const data of res) {
-			if (fav.includes(data.id)) {
-				newFavSocieties.push(data)
-			}
-		}
-		
-		setFavsocieties(newFavSocieties)
+        const data = await fetchFavourites();
+        setFavourites(data.favourite_societies);
 
+        console.log(societies);
+        console.log(favourites);
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
+    handleFetch();
 	}, [])
 
   return (
@@ -109,11 +95,13 @@ export default function Societies({}) {
             Favourites
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {favsocieties.map((data, index) => {
-              return <SocietyCard key={index} data={data} favourites={favourites}/>
+            {allSocieties.map((data, index) => {
+              if (favourites.includes(data.id)) {
+                return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
+              }
             })}
           </div>
-          {favsocieties.length === 0 && 
+          {favourites.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               You haven't favourited any societies yet.
             </div>
@@ -125,7 +113,9 @@ export default function Societies({}) {
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {allSocieties.map((data, index) => {
-              return <SocietyCard key={index} data={data} favourites={favourites}/>
+              if (!favourites.includes(data.id)) {
+                return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
+              }
             })}
           </div>
           {allSocieties.length === 0 && 
