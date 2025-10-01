@@ -78,9 +78,15 @@ export default function Society() {
     <div className='w-full bg-gray-600/20 rounded-xl lg:h-96 flex flex-col lg:flex-row p-4 items-center gap-8'>
       <div className='flex flex-col gap-4 items-center'>
           <div className="w-full flex flex-col gap-4 items-center p-2 rounded-xl">
-              <div className={`h-54 w-54 bg-gray-400 rounded-full bg-cover bg-center flex items-end justify-end `}
+              <div className={`h-54 w-54 bg-gray-500 rounded-full bg-cover bg-center flex items-end justify-end relative `}
                 style={societyData.image && { backgroundImage: `url(${societyData.image})` }}
               >
+                {!societyData.image && (
+                    <div className="absolute right-[25%] bottom-[25%] flex flex-col w-[50%] h-[50%] text-black text-3xl font-bold items-center justify-center">
+                        <span>NO</span>
+                        <span>IMAGE</span>
+                    </div>
+                )}
                 <div className="h-12 w-12 rounded-full bg-[#101727] flex items-center justify-center cursor-pointer hover:scale-105"
                   onClick={
                       (e) => {

@@ -5,12 +5,42 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import CloseIcon from '@mui/icons-material/Close';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Pencil1Icon } from "@radix-ui/react-icons"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./popover";
+import { 
+    HoverCard, 
+    HoverCardTrigger, 
+    HoverCardContent 
+} from "./hoverCard";
+import { Input } from './input';
+import { uploadImage, fetchAvatar } from '@/lib/fetch';
+import { useAtom } from 'jotai';
+import { avatarAtom } from "@/app/atoms/avatarAtom";
 
 export default function NavBar() {
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [avatar, setAvatar] = useAtom(avatarAtom);
+
+    useEffect(() => {
+        const handleFetch = async () => {
+            try {
+                if (!avatar) {
+                    const fetchedAvatar = await fetchAvatar();
+                    setAvatar(fetchedAvatar);
+                }
+            } catch (err) {
+                alert(err.message);
+            }
+        };
+    
+        handleFetch();
+    }, [avatar])
 
     const handleLogout = async () => {
         try {
@@ -21,13 +51,24 @@ export default function NavBar() {
         }
     };
 
+    const handleUpload = async ({ e }) => {
+        try {
+            const newAvatar = await uploadImage({ e });
+            setAvatar(newAvatar);
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
     const toggleMenu = () => {
         setMenuOpen(prev => !prev);
     };
 
+    console.log(avatar);
+
     return (
         <div className=" z-10 w-full  top-0 left-0 right-0 bg-[#101727]/50 border-b-1 border-gray-800 fixed backdrop-blur-lg">
-            <div className="p-4 justify-between md:flex hidden">
+            <div className="py-4 px-6 justify-between md:flex hidden">
                 <div className="flex justify-center gap-12">
                     <div className="flex gap-8 items-center cursor-pointer">
                         <Link className="font-bold text-xl" href="/">
@@ -51,15 +92,49 @@ export default function NavBar() {
                         <div className="text-gray-400">Loading...</div>
                     ) : user ? (
                         <>
-                            <span className="text-gray-300">
-                                {user.user_metadata?.username || user.email}
-                            </span>
-                            <button 
-                                onClick={handleLogout}
-                                className="bg-red-500/90 p-2 rounded w-24 cursor-pointer hover:bg-red-500/80"
-                            >
-                                Logout
-                            </button>
+                            <HoverCard>
+                                <HoverCardTrigger>
+                                    <div className="relative w-12 h-12 rounded-full border-2 border-white cursor-pointer aspect-square">
+                                        <div
+                                            className="w-full h-full rounded-full bg-cover bg-center"
+                                            style={avatar && { backgroundImage: `url(${avatar})` }}
+                                        />
+
+                                        <div className="absolute inset-0 rounded-full bg-black bg-opacity-40 opacity-0 hover:opacity-50 flex items-center justify-center transition-opacity duration-300"
+                                            onClick={() => document.getElementById("avatar").click()}
+                                        >
+                                            <Pencil1Icon className="w-5 h-5"/>
+                                        </div>
+
+                                        <Input
+                                            type="file"
+                                            id="avatar"
+                                            className="hidden"
+                                            onChange={(e) => handleUpload({ e })}
+                                        />
+                                    </div>
+                                </HoverCardTrigger>
+                                <HoverCardContent className="flex flex-col gap-2 bg-white border-0">
+                                    <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                                        <span className="text-[1.1rem]">iCal Link</span>
+                                    </div>
+
+                                    {/* <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                                        <span className="text-[1.1rem]">Following</span>
+                                    </div>
+
+                                    <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                                        <span className="text-[1.1rem]">Settings</span>
+                                    </div> */}
+
+                                    <button 
+                                        onClick={handleLogout}
+                                        className="w-full bg-red-500/90 p-2 rounded-full cursor-pointer hover:bg-red-500/80"
+                                    >
+                                        Log out
+                                    </button>
+                                </HoverCardContent>
+                            </HoverCard>
                         </>
                     ) : (
                         <>
@@ -79,29 +154,41 @@ export default function NavBar() {
             </div>
             <div className="p-4 flex justify-between md:hidden items-center">
                 <div className="flex gap-2 items-center">
-                    <img src="/googleiconrm.png" className="w-8 h-8" />
                     <h1 className="font-bold text-xl">
-                        NetHub
+                        MissingLink
                     </h1>
                 </div>
                 <div className='cursor-pointer text-2xl flex items-center'> 
-                    <div className="relative w-[4vw] h-[4vw] z-50 cursor-pointer m-3" onClick={toggleMenu}>
-                        <span
-                            className={`block absolute h-[0.4vw] w-full bg-white transform transition duration-300 ease-in-out ${
-                            menuOpen ? 'rotate-45 top-[2.4vw]' : 'top-[0.8vw]'
-                            }`}
-                        />
-                        <span
-                            className={`block absolute h-[0.4vw] w-full bg-white transition-opacity duration-300 ease-in-out ${
-                            menuOpen ? 'opacity-0 top-[2.4vw]' : 'top-[2.4vw]'
-                            }`}
-                        />
-                        <span
-                            className={`block absolute h-[0.4vw] w-full bg-white transform transition duration-300 ease-in-out ${
-                            menuOpen ? '-rotate-45 top-[2.4vw]' : 'bottom-[-0.4vw]'
-                            }`}
-                        />
-                    </div>
+                    <Popover>
+                        <PopoverTrigger>
+                            <div className="relative w-12 h-12 rounded-full border-2 border-white cursor-pointer aspect-square">
+                                <div
+                                    className="w-full h-full rounded-full bg-cover bg-center"
+                                    style={avatar && { backgroundImage: `url(${avatar})` }}
+                                />
+                            </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="flex flex-col gap-2 bg-white border-0">
+                            <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                                <span className="text-[1.1rem]" onClick={() => router.push("/societies")}>Societies</span>
+                            </div>
+
+                            <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                                <span className="text-[1.1rem]" onClick={() => router.push("/network")}>Network</span>
+                            </div>
+
+                            <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                                <span className="text-[1.1rem]">iCal Link</span>
+                            </div>
+
+                            <button 
+                                onClick={handleLogout}
+                                className="w-full bg-red-500/90 p-2 rounded-full cursor-pointer hover:bg-red-500/80"
+                            >
+                                Log out
+                            </button>
+                        </PopoverContent>
+                    </Popover>
                 </div>
             </div>
         </div>  
