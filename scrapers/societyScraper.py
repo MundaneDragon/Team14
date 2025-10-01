@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+url = os.environ.get("SUPABASE_URL")
 key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") 
 supabase = create_client(url, key)
 
@@ -108,7 +108,7 @@ def main():
         break 
     
     #print(dict)
-    print("Scraping completed! Upserted " + str(len(dict)) " societies")
+    print("Scraping completed! Upserted " + str(len(dict)) + " societies")
     driver.quit()
 
     for id, society in dict.items(): 
