@@ -22,6 +22,8 @@ export default function Societies({}) {
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("Name A-Z");
   const [allSocieties, setAllSocieties] = useState([])
+  const [displaySocieties, setDisplaySocieties] = useState([])
+  const [currentMax, setCurrentMax] = useState(36)
 	const [favourites, setFavourites] = useState([])
 
 	useEffect(() => {
@@ -29,6 +31,7 @@ export default function Societies({}) {
       try {
         const societies = await fetchSocieties();
         setAllSocieties(societies);
+        setDisplaySocieties(societies.slice(0, 36))
 
         const data = await fetchFavourites();
         setFavourites(data.favourite_societies);
@@ -42,6 +45,28 @@ export default function Societies({}) {
 
     handleFetch();
 	}, [])
+
+  useEffect(() => {
+    console.log(currentMax)
+    setDisplaySocieties(allSocieties.slice(0, Math.min(currentMax, allSocieties.length)))
+  }, [currentMax])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop + window.innerHeight >= document.documentElement.scrollHeight) {
+        setCurrentMax(currentMax + 28) 
+      }
+
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [currentMax]);
 
   return (
     <MainBody>
@@ -112,7 +137,7 @@ export default function Societies({}) {
             All Societies
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {allSocieties.map((data, index) => {
+            {displaySocieties.map((data, index) => {
               if (!favourites.includes(data.id)) {
                 return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
               }
