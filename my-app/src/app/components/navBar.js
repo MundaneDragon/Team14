@@ -4,10 +4,12 @@ import HubIcon from '@mui/icons-material/Hub';
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { useState } from 'react';
 
 export default function NavBar() {
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
+    const [menuOpen, setMenuOpen] = useState(false);
 
     const handleLogout = async () => {
         try {
@@ -16,6 +18,10 @@ export default function NavBar() {
         } catch (error) {
             console.error("Logout error:", error);
         }
+    };
+
+    const toggleMenu = () => {
+        setMenuOpen(prev => !prev);
     };
 
     return (
@@ -78,7 +84,23 @@ export default function NavBar() {
                     </h1>
                 </div>
                 <div className='cursor-pointer text-2xl flex items-center'> 
-                    <MenuOutlinedIcon/>
+                    <div className="relative w-[4vw] h-[4vw] z-50 cursor-pointer m-3" onClick={toggleMenu}>
+                        <span
+                            className={`block absolute h-[0.4vw] w-full bg-white transform transition duration-300 ease-in-out ${
+                            menuOpen ? 'rotate-45 top-[2.4vw]' : 'top-[0.8vw]'
+                            }`}
+                        />
+                        <span
+                            className={`block absolute h-[0.4vw] w-full bg-white transition-opacity duration-300 ease-in-out ${
+                            menuOpen ? 'opacity-0 top-[2.4vw]' : 'top-[2.4vw]'
+                            }`}
+                        />
+                        <span
+                            className={`block absolute h-[0.4vw] w-full bg-white transform transition duration-300 ease-in-out ${
+                            menuOpen ? '-rotate-45 top-[2.4vw]' : 'bottom-[-0.4vw]'
+                            }`}
+                        />
+                    </div>
                 </div>
             </div>
         </div>  
