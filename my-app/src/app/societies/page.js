@@ -26,12 +26,17 @@ export default function Societies({}) {
   const [sort, setSort] = useState("Name A-Z");
   const [allSocieties, setAllSocieties] = useAtom(societiesAtom)
 	const [favourites, setFavourites] = useAtom(favouritesAtom)
+  // const [allSocieties, setAllSocieties] = useState([])
+	// const [favourites, setFavourites] = useState([])
+  const [displaySocieties, setDisplaySocieties] = useState([])
+  const [currentMax, setCurrentMax] = useState(36)
 
 	useEffect(() => {
     const handleFetch = async () => {
       try {
         const societies = await fetchSocieties();
         setAllSocieties(societies);
+        setDisplaySocieties(societies.slice(0, 36))
 
         const data = await fetchFavourites();
         setFavourites(data.favourite_societies);
@@ -45,6 +50,28 @@ export default function Societies({}) {
 
     handleFetch();
 	}, [])
+
+  useEffect(() => {
+    console.log(currentMax)
+    setDisplaySocieties(allSocieties.slice(0, Math.min(currentMax, allSocieties.length)))
+  }, [currentMax, allSocieties])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 100) {
+        setCurrentMax(prev => prev + 28) 
+      }
+
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <MainBody>
@@ -115,13 +142,13 @@ export default function Societies({}) {
             All Societies
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {allSocieties.map((data, index) => {
+            {displaySocieties.map((data, index) => {
               if (!favourites.includes(data.id)) {
                 return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
               }
             })}
           </div>
-          {allSocieties.length === 0 && 
+          {displaySocieties.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               We couldn't find any matching results. 
               <span> 

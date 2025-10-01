@@ -9,6 +9,7 @@ import time
 import re
 from datetime import datetime
 
+import os
 from supabase import create_client, client
 from dotenv import load_dotenv
 
@@ -38,15 +39,15 @@ def main():
         time.sleep(2)
 
         # Uncomment this when you want to go through every event
-        # while True:
-        #     try: 
-        #         driver.find_element(By.XPATH, "//*[text()='Load More']").click()
-        #         time.sleep(0.5)
-        #     except Exception:
-        #         break
+        while True:
+            try: 
+                driver.find_element(By.XPATH, "//*[text()='Load More']").click()
+                time.sleep(0.5)
+            except Exception:
+                break
         
-        # time.sleep(1)
-        cards = WebDriverWait(driver, 10).until(
+        time.sleep(1)
+        cards = WebDriverWait(driver,10).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".column.is-one-third-desktop.is-half-tablet"))
         )
 
@@ -64,9 +65,12 @@ def main():
                     print("wtf why is there a duplicated event id????")
                     break 
                 else:
+                    # Somehow grabs the facebook events too so will need to get rid of these events
+                    if len(dest) > 15:
+                        continue 
                     lines = card.text.splitlines()
                     info["category"] = lines[3]
-
+                    # print(dest)
                     id = int(re.search(r"\d+", dest).group())
                     dict[id] = info
                 # print("destination is", dest)
@@ -78,9 +82,9 @@ def main():
 
         # id, startTime, endTime, location, title, hostedById, desc, network, societyName, category, eventImage, price, societyImage
         # Goes through every event id from unsw 
-
-        for key in dict:
+        for key in list(dict.keys()):
             try: 
+
                 driver.get(f"https://campus.hellorubric.com/?eid={key}")
                 time.sleep(1)
                 details = dict[key]
@@ -127,8 +131,9 @@ def main():
                 #print(key, dict[key])
                 time.sleep(1)
             except Exception: 
-                    print("Something did not work")
-                    print(key)
+                dict.pop(key)
+                print("Something did not work")
+                print(key)
 
         # At this point we've gone through all the events
         break 
@@ -139,17 +144,22 @@ def main():
 
     for id, event in dict.items():
         print(event)
-        data = supabase.table("events").upsert({
-            "id": event["id"],
-            "start_time": event["startTime"],
-            "end_time": event["endTime"],
-            "location": event["location"],
-            "name": event["title"],
-            "society_id": event["hostedById"],
-            "description": event["desc"],
-            "category": event["category"],
-            "image": event["eventImage"]
-        }).execute()
+        try: 
+            data = supabase.table("events").upsert({
+                "id": event["id"],
+                "start_time": event["startTime"],
+                "end_time": event["endTime"],
+                "location": event["location"],
+                "title": event["title"],
+                "society_id": event["hostedById"],
+                "network": [],
+                "description": event["desc"],
+                "category": event["category"],
+                "image": event["eventImage"], 
+                "price": event["price"],
+            }).execute()
+        except: 
+            print("Some error occured")
 
 if __name__ == "__main__":
     main()

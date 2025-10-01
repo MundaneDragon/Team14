@@ -2,6 +2,9 @@
 import MainBody from "../components/mainBody"
 import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
+
+
+
 export default function Network() {
     return (
         <MainBody>

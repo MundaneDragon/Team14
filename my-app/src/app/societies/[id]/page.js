@@ -20,36 +20,6 @@ import { societiesAtom } from "@/app/atoms/societiesAtom";
 import { favouritesAtom } from "@/app/atoms/favouritesAtom";
 import { fetchSocieties, updateFavourites } from '@/lib/fetch';
 
-// const fakeData = {
-// 		id: 2309322,
-// 		name: "180 Accounting",
-// 		image: "/societylogo.webp",
-//     desc: `180 Degrees Consulting is the world’s largest pro bono student  consultancy that helps nonprofits achieve a \
-//           greater social impact across 35 countries and 170+ branches. Teams of university students work  throughout the semester \
-//           to identify and overcome the challenges these  organisations face.   The 180DC UOW team has completed projects for the \
-//           Green Connect, The  Gong Bar, UOW Pulse Cancer Council, Illawarra Public Health Society,  Healthy Cities Illawarra, \
-//           and #Talk2MeBro.  This is an amazing opportunity for students wishing to gain new skills  and experience to put their learning\
-//            into practice. With previous team  members now employed in top tier organisations worldwide, students do  not want to miss out 
-//            on the ability to enhance their positive social  impact by helping non-profit and social enterprises.   If you're a UOW student \
-//            looking to give back to the community, gain  professional experience and exercise your leadership skills\
-//            into practice. With previous team  members now employed in top tier organisations worldwide, students do  not want to miss out \
-//            on the ability to enhance their positive social  impact by helping non-profit and social enterprises.   If you're a UOW student \
-//            looking to give back to the community, gain  professional experience and exercise your leadership skills`,
-//     events: [
-//       {title: "2025 CEUS AGM", 
-//       clubLogo: "/society.webp", 
-//       society: "UNSW Chemical Engineering Undergraduate Society",
-//       time: "9 Oct 2024, 6:00 PM", 
-//       picture: "/society.webp"}, 
-//       {title: "2025 CEUS AGM", 
-//       clubLogo: "/society.webp", 
-//       society: "UNSW Chemical Engineering Undergraduate Society",
-//       time: "9 Oct 2024, 6:00 PM", 
-//       picture: "/society.webp"}, 
-//       ]
-// }
-// const fav = [32321, 2309322, 219839321, 29183]
-
 export default function Society() {
   const [societyData, setSocietyData] = useState(null);
   const [favourites, setFavourites] = useAtom(favouritesAtom);
