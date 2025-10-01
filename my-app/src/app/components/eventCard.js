@@ -19,10 +19,18 @@ export default function EventCard({eventData}) {
           style={{ backgroundImage: `url(${eventData.picture})` }}
         >
           <div className="w-full justify-between text-center text-black text-xs gap-4 opacity-0 flex group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-            <div className="w-full bg-white flex items-center justify-center py-2 rounded-xl gap-1 hover:bg-[#d9dce1] shadow-xl">
+            <div className="w-full bg-white flex items-center justify-center py-2 rounded-xl gap-1 hover:bg-[#d9dce1] shadow-xl"
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}>
               Add to Calendar <CalendarTodayOutlinedIcon fontSize="small"/>
             </div>
-            <div className="w-full bg-[#A3CBFF] flex items-center justify-center py-2 rounded-xl gap-1 hover:bg-[#99bae4] shadow-xl">
+            <div className="w-full bg-[#A3CBFF] flex items-center justify-center py-2 rounded-xl gap-1 hover:bg-[#99bae4] shadow-xl"
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}>
               Want to Network <LanOutlinedIcon fontSize="small"/>
             </div>
           </div>

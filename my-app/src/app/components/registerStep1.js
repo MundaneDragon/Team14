@@ -33,6 +33,7 @@ export default function RegisterStep1({ prevStep, onSubmit }) {
                     type="password" 
                     id="password"
                     className={`bg-[#282828] p-4 w-full rounded-3xl ${errors.password && "border-[#FF7F7F]"}`}
+                    placeholder="Enter a password"
                   />
                   {errors.password && (
                     <p className="text-[#FF7F7F] text-[0.8rem]">{errors.password.message}</p>

@@ -1,6 +1,7 @@
+"use client";
 import MainBody from "../components/mainBody"
 import CloseIcon from '@mui/icons-material/Close';
-
+import Link from "next/link";
 export default function Network() {
     return (
         <MainBody>
@@ -21,10 +22,9 @@ export default function Network() {
 
 
 function NetworkCard({data}) {
-
-
     return (
-    <div className="flex gap-4 p-4 hover:bg-gray-400/20 cursor-pointer rounded-xl hover:scale-105 transition-all duration-300">
+    <Link className="flex flex-col md:flex-row gap-4 p-4 hover:bg-gray-400/20 cursor-pointer rounded-xl hover:scale-105 transition-all duration-300"
+    href="/network/2121">
         <div className="flex gap-2 items-center">
             <div className="h-10/12 w-1 bg-red-300 rounded-md">
             </div>
@@ -44,13 +44,17 @@ function NetworkCard({data}) {
                     </p>
                 </div>
             </div>
-            <button className="bg-[#FFA3A3] w-64 rounded-md text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2">
+            <button className="bg-[#FFA3A3] w-64 rounded-md text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2"
+            onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+            }}>
                 Remove 
                 <div className="pt-0.5">
                     <CloseIcon/>
                 </div>
             </button>
         </div>
-    </div>
+    </Link>
     )
 }
