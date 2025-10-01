@@ -34,7 +34,11 @@ export default function SocietyCard({data, favourites, setFavourites}) {
                     if (favourites?.includes(data.id)) {
                         newFavourites = favourites?.filter((fav => fav !== data.id));
                     } else {
-                        newFavourites = [...favourites, data.id];
+                        if (favourites) { 
+                            newFavourites = [...favourites, data.id];
+                        } else {
+                            newFavourites = [data.id];
+                        }
                     }
 
                     setFavourites(newFavourites);

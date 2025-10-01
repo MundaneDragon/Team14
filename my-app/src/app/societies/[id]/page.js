@@ -62,7 +62,7 @@ export default function Society() {
           setEvents(fetchedEvents);
         }
       } catch (err) {
-        alert(err.message);
+        console(err.message);
       }
     };
 
@@ -93,7 +93,7 @@ export default function Society() {
                           e.stopPropagation();
                           e.preventDefault();
 
-                          let newFavourites;
+                          let newFavourites = [];
                           
                           if (favourites?.includes(societyData.id)) {
                               newFavourites = favourites?.filter((fav => fav !== societyData.id));

@@ -1,3 +1,3 @@
 import { atom } from 'jotai';
 
-export const favouritesAtom = atom(null);
+export const favouritesAtom = atom([]);
