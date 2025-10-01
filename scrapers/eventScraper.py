@@ -4,6 +4,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 import traceback
 import time
 import re
@@ -21,12 +23,23 @@ supabase = create_client(url, key)
 
 TARGET = "https://campus.hellorubric.com/search?type=events"
 
-driver = webdriver.Chrome()
+def get_driver():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--remote-debugging-port=9222")
+    chrome_options.add_argument("--user-data-dir=/tmp/chrome-user-data")
+
+    return webdriver.Chrome(options=chrome_options)
 
 def main():
     # ToDo: Someone add supabase to this pls 
     
     # Goes to the society website
+    driver = get_driver()
     driver.get(TARGET)
 
     while True:
