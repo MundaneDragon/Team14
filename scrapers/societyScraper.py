@@ -108,7 +108,7 @@ def main():
         break 
     
     #print(dict)
-    print("Scraping completed! Upserted " + str(len(dict)) " societies")
+    print("Scraping completed! Upserted " + str(len(dict)) + " societies")
     driver.quit()
 
     for id, society in dict.items(): 

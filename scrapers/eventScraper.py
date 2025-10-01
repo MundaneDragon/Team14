@@ -143,7 +143,6 @@ def main():
     driver.quit()
 
     for id, event in dict.items():
-        print(event)
         try: 
             data = supabase.table("events").upsert({
                 "id": event["id"],
