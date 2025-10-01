@@ -69,57 +69,61 @@ def main():
         time.sleep(2)
 
 
-        # id, startTime, endTime, location, title, hostedById, desc, network, societyName, category, eventImage, price
+        # id, startTime, endTime, location, title, hostedById, desc, network, societyName, category, eventImage, price, societyImage
         # Goes through every event id from unsw 
 
         for key in dict:
-            driver.get(f"https://campus.hellorubric.com/?eid={key}")
-            time.sleep(1)
-            details = dict[key]
+            try: 
+                driver.get(f"https://campus.hellorubric.com/?eid={key}")
+                time.sleep(1)
+                details = dict[key]
 
-            details["id"] = key
-
-
-            text = driver.find_element(By.CLASS_NAME, "ed_eventTime").text
-            print(text)
-            startTime = text.split("-", 1)[0].strip()
-            
-            startTimeStamp = datetime.strptime(startTime, "%a, %d %b %Y %I:%M %p") 
-            startTimeStamp = startTimeStamp.strftime("%Y-%m-%d %H:%M:%S")
-            
-            details["startTime"] = startTimeStamp
-            
-            endTime = text.split("-", 1)[1].strip()
-            endTimeStamp = datetime.strptime(endTime, "%a, %d %b %Y %I:%M %p") 
-            endTimeStamp = endTimeStamp.strftime("%Y-%m-%d %H:%M:%S")
-            details["endTime"] = endTimeStamp
+                details["id"] = key
 
 
-            details["location"] = driver.find_element(By.ID, "eventAddress").text.strip()
-            details["title"] = driver.find_element(By.ID, "eventName1").text.strip()
-            # ed_hosted-by
-            link = driver.find_element(By.CSS_SELECTOR, "#ed_hosted-by a")
-            href = link.get_attribute("href")
-            match = re.search(r"s=(\d+)", href)
+                text = driver.find_element(By.CLASS_NAME, "ed_eventTime").text
+                print(text)
+                startTime = text.split("-", 1)[0].strip()
+                
+                startTimeStamp = datetime.strptime(startTime, "%a, %d %b %Y %I:%M %p") 
+                startTimeStamp = startTimeStamp.strftime("%Y-%m-%d %H:%M:%S")
+                
+                details["startTime"] = startTimeStamp
+                
+                endTime = text.split("-", 1)[1].strip()
+                endTimeStamp = datetime.strptime(endTime, "%a, %d %b %Y %I:%M %p") 
+                endTimeStamp = endTimeStamp.strftime("%Y-%m-%d %H:%M:%S")
+                details["endTime"] = endTimeStamp
 
-            details["hostedById"] = match.group(1)
-            # eventName2
-            details["desc"] = driver.find_element(By.ID, "eventName2").text.strip()
-            details["network"] = []
-            details["societyName"] = driver.find_element(By.ID, "ed_hosted-by").text.strip()
 
-            img = driver.find_element(By.ID, "ed_bannerimage")
-            src = img.get_attribute("src")
+                details["location"] = driver.find_element(By.ID, "eventAddress").text.strip()
+                details["title"] = driver.find_element(By.ID, "eventName1").text.strip()
+                # ed_hosted-by
+                link = driver.find_element(By.CSS_SELECTOR, "#ed_hosted-by a")
+                href = link.get_attribute("href")
+                match = re.search(r"s=(\d+)", href)
 
-            details["eventImage"] = src
+                details["hostedById"] = match.group(1)
+                # eventName2
+                details["desc"] = driver.find_element(By.ID, "eventName2").text.strip()
+                details["network"] = []
+                details["societyName"] = driver.find_element(By.ID, "ed_hosted-by").text.strip()
 
-            # ticketPriceRangeSection
-            details["price"] = driver.find_element(By.ID, "ticketPriceRangeSection").text.strip()
-            
+                img = driver.find_element(By.ID, "ed_bannerimage")
+                src = img.get_attribute("src")
 
-            print(key, dict[key])
-            time.sleep(2)
-        # At this point its 
+                details["eventImage"] = src
+
+                # ticketPriceRangeSection
+                details["price"] = driver.find_element(By.ID, "ticketPriceRangeSection").text.strip() 
+
+                print(key, dict[key])
+                time.sleep(1)
+            except Exception: 
+                    print("Something did not work")
+                    print(key)
+
+        # At this point we've gone through all the events
         break 
 
     print(dict)
