@@ -26,8 +26,6 @@ export default function Societies({}) {
   const [sort, setSort] = useState("Name A-Z");
   const [allSocieties, setAllSocieties] = useAtom(societiesAtom)
 	const [favourites, setFavourites] = useAtom(favouritesAtom)
-  // const [allSocieties, setAllSocieties] = useState([])
-	// const [favourites, setFavourites] = useState([])
   const [displaySocieties, setDisplaySocieties] = useState([])
   const [currentMax, setCurrentMax] = useState(36)
 
@@ -38,8 +36,10 @@ export default function Societies({}) {
         setAllSocieties(societies);
         setDisplaySocieties(societies.slice(0, 36))
 
-        const data = await fetchFavourites();
-        setFavourites(data.favourite_societies);
+        if (!favourites) {
+          const data = await fetchFavourites();
+          setFavourites(data.favourite_societies);
+        }
 
         console.log(societies);
         console.log(favourites);
@@ -126,12 +126,12 @@ export default function Societies({}) {
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-5 gap-4">
             {allSocieties.map((data, index) => {
-              if (favourites.includes(data.id)) {
+              if (favourites?.includes(data.id)) {
                 return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
               }
             })}
           </div>
-          {favourites.length === 0 && 
+          {favourites?.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               You haven't favourited any societies yet.
             </div>
@@ -143,7 +143,7 @@ export default function Societies({}) {
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {displaySocieties.map((data, index) => {
-              if (!favourites.includes(data.id)) {
+              if (!favourites?.includes(data.id)) {
                 return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
               }
             })}

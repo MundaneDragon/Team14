@@ -18,7 +18,7 @@ import {
 import { useAtom } from 'jotai';
 import { societiesAtom } from "@/app/atoms/societiesAtom";
 import { favouritesAtom } from "@/app/atoms/favouritesAtom";
-import { fetchSocieties, updateFavourites } from '@/lib/fetch';
+import { fetchSocieties, updateFavourites, fetchFavourites } from '@/lib/fetch';
 
 export default function Society() {
   const [societyData, setSocietyData] = useState(null);
@@ -39,6 +39,11 @@ export default function Society() {
         }
         console.log(foundSociety);
         setSocietyData(foundSociety);
+
+        if (!favourites) {
+          const data = await fetchFavourites();
+          setFavourites(data.favourite_societies);
+        }
       } catch (err) {
         alert(err.message);
       }
@@ -67,8 +72,8 @@ export default function Society() {
 
                           let newFavourites;
                           
-                          if (favourites.includes(societyData.id)) {
-                              newFavourites = favourites.filter((fav => fav !== societyData.id));
+                          if (favourites?.includes(societyData.id)) {
+                              newFavourites = favourites?.filter((fav => fav !== societyData.id));
                           } else {
                               newFavourites = [...favourites, societyData.id];
                           }
@@ -78,7 +83,7 @@ export default function Society() {
                       }
                   }
                   >
-                      {favourites.includes(societyData.id) ? (
+                      {favourites?.includes(societyData.id) ? (
                           <StarFilledIcon className="w-6 h-6 text-[#FFDFA3]"/>
                       ) : (
                           <StarIcon className="w-6 h-6 text-[#FFFFFF]"/>

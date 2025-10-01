@@ -23,8 +23,8 @@ export default function SocietyCard({data, favourites, setFavourites}) {
                 
                     let newFavourites;
 
-                    if (favourites.includes(data.id)) {
-                        newFavourites = favourites.filter((fav => fav !== data.id));
+                    if (favourites?.includes(data.id)) {
+                        newFavourites = favourites?.filter((fav => fav !== data.id));
                     } else {
                         newFavourites = [...favourites, data.id];
                     }
@@ -34,7 +34,7 @@ export default function SocietyCard({data, favourites, setFavourites}) {
                 }
             }
             >
-                {favourites.includes(data.id) ? (
+                {favourites?.includes(data.id) ? (
                     <StarFilledIcon className="w-6 h-6 text-[#FFDFA3]"/>
                 ) : (
                     <StarIcon className="w-6 h-6 text-[#FFFFFF]"/>
