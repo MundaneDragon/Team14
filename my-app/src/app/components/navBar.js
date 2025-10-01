@@ -4,6 +4,7 @@ import HubIcon from '@mui/icons-material/Hub';
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 
 export default function NavBar() {
@@ -25,7 +26,7 @@ export default function NavBar() {
     };
 
     return (
-        <div className="absolute w-full bg-[#101727] border-b-1 border-gray-800">
+        <div className=" z-10 w-full  top-0 left-0 right-0 bg-[#101727]/50 border-b-1 border-gray-800 fixed backdrop-blur-lg">
             <div className="p-4 justify-between md:flex hidden">
                 <div className="flex justify-center gap-12">
                     <div className="flex gap-8 items-center cursor-pointer">

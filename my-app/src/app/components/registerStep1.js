@@ -1,6 +1,7 @@
 import SignCard from "../components/signCard"
 import { Input } from "../components/input";
 import { useFormContext } from 'react-hook-form';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function RegisterStep1({ prevStep, onSubmit }) {
     const { register, handleSubmit, formState: { errors } } = useFormContext();
@@ -42,6 +43,10 @@ export default function RegisterStep1({ prevStep, onSubmit }) {
                   <button className="w-full p-4 rounded-full bg-[#A3CBFF] hover:bg-[#A3CBFF]/80 text-black cursor-pointer" onClick={handleSubmit(onSubmit)}>
                     Sign up
                   </button>
+                  <button onClick={prevStep} className="cursor-pointer text-gray-400 hover:text-gray-300 mt-12">
+                    <ArrowBackIcon /> Go Back
+                  </button>
+                  
                 </div>
             </SignCard>
         </div>

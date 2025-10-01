@@ -41,6 +41,11 @@ export default function RegisterStep0({ nextStep }) {
                         Log in here.
                     </Link>
                 </p>
+                <p className="text-nowrap text-gray-400 mt-4">
+                  View as guest instead? <Link className="underline text-white" href="/">
+                        Click Here.
+                    </Link>
+                </p>
             </SignCard>
         </div>
     )
