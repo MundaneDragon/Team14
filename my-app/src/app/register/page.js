@@ -2,12 +2,15 @@
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useRouter } from "next/navigation";
+import { signUp } from "@/lib/auth";
 
 import RegisterStep0 from '../components/registerStep0';
 import RegisterStep1 from '../components/registerStep1';
 
 export default function Register() {
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const methods = useForm({
         mode: "onSubmit",
@@ -32,10 +35,17 @@ export default function Register() {
 
     const onSubmit = async ({ email, username, password }) => {
         try {
-            // await signUp({ email, username, password });
-            router.push("/");
+            setLoading(true);
+            setError("");
+            await signUp({ email, username, password });
+            // Show success message
+            alert("Account created successfully! Please check your email to verify your account.");
+            router.push("/login");
         } catch (err) {
-            alert(`Signup failed: ${err.message}`);
+            setError(err.message || "Signup failed. Please try again.");
+            console.error("Signup error:", err);
+        } finally {
+            setLoading(false);
         }
     }
 

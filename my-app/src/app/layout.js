@@ -1,4 +1,5 @@
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
   title: "Create Next App",
@@ -11,9 +12,11 @@ export default function RootLayout({ children }) {
       <body
         className={"antialiased bg-[#131418] text-white"}
       > 
-        <main className="text-white">
-          {children}
-        </main>
+        <AuthProvider>
+          <main className="text-white">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );

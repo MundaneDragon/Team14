@@ -1,8 +1,22 @@
+"use client"
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import HubIcon from '@mui/icons-material/Hub';
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function NavBar() {
+    const { user, loading, signOut } = useAuth();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await signOut();
+            router.push("/login");
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
 
     return (
         <div className="absolute w-full bg-[#101727] border-b-1 border-gray-800">
@@ -25,17 +39,35 @@ export default function NavBar() {
                         
                     </div>
                 </div>
-                <div className="flex gap-4 font-semibold">
-                    <Link href="/register">
-                        <button className="bg-blue-400/90 p-2 rounded w-24 cursor-pointer hover:bg-blue-400/80 ">
-                            Register
-                        </button>
-                    </Link>
-                    <Link href="/login">
-                        <button className="bg-white/90 p-2 rounded w-24 cursor-pointer hover:bg-white/80 text-black ">
-                            Login 
-                        </button>
-                    </Link>
+                <div className="flex gap-4 font-semibold items-center">
+                    {loading ? (
+                        <div className="text-gray-400">Loading...</div>
+                    ) : user ? (
+                        <>
+                            <span className="text-gray-300">
+                                {user.user_metadata?.username || user.email}
+                            </span>
+                            <button 
+                                onClick={handleLogout}
+                                className="bg-red-500/90 p-2 rounded w-24 cursor-pointer hover:bg-red-500/80"
+                            >
+                                Logout
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/register">
+                                <button className="bg-blue-400/90 p-2 rounded w-24 cursor-pointer hover:bg-blue-400/80 ">
+                                    Register
+                                </button>
+                            </Link>
+                            <Link href="/login">
+                                <button className="bg-white/90 p-2 rounded w-24 cursor-pointer hover:bg-white/80 text-black ">
+                                    Login 
+                                </button>
+                            </Link>
+                        </>
+                    )}
                 </div>
             </div>
             <div className="p-4 flex justify-between md:hidden items-center">
