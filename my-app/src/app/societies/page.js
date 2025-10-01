@@ -17,12 +17,15 @@ import {
 } from "../components/select";
 
 import { fetchSocieties, fetchFavourites } from "@/lib/fetch";
+import { useAtom } from 'jotai';
+import { societiesAtom } from "@/app/atoms/societiesAtom";
+import { favouritesAtom  } from "../atoms/favouritesAtom";
 
 export default function Societies({}) {
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("Name A-Z");
-  const [allSocieties, setAllSocieties] = useState([])
-	const [favourites, setFavourites] = useState([])
+  const [allSocieties, setAllSocieties] = useAtom(societiesAtom)
+	const [favourites, setFavourites] = useAtom(favouritesAtom)
 
 	useEffect(() => {
     const handleFetch = async () => {
