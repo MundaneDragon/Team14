@@ -9,7 +9,15 @@ import time
 import re
 from datetime import datetime
 
+import os
+from supabase import create_client, client
+from dotenv import load_dotenv
 
+load_dotenv()
+
+url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") 
+supabase = create_client(url, key)
 
 TARGET = "https://campus.hellorubric.com/search?type=societies"
 
@@ -29,7 +37,7 @@ def main():
         driver.find_element(By.CSS_SELECTOR, "tr[universityid='5']").click()
         time.sleep(2)
 
-        # Uncomment this when you want to go through every event
+        #Uncomment this when you want to go through every event
         # while True:
         #     try: 
         #         driver.find_element(By.XPATH, "//*[text()='Load More']").click()
@@ -103,6 +111,15 @@ def main():
     print(len(dict))
     print("Scraping completed!")
     driver.quit()
+
+    for id, society in dict.items(): 
+        supabase.table("societies").upsert({
+            "id": society["id"],
+            "name": society["societyName"],
+            "image": society["societyImage"],
+            "description": society["societyDesc"]
+        }).execute()
+    
 
 if __name__ == "__main__":
     main()
