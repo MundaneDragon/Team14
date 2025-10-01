@@ -9,7 +9,14 @@ import time
 import re
 from datetime import datetime
 
+from supabase import create_client, client
+from dotenv import load_dotenv
 
+load_dotenv()
+
+url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") 
+supabase = create_client(url, key)
 
 TARGET = "https://campus.hellorubric.com/search?type=events"
 
@@ -82,7 +89,7 @@ def main():
 
 
                 text = driver.find_element(By.CLASS_NAME, "ed_eventTime").text
-                print(text)
+                #print(text)
                 startTime = text.split("-", 1)[0].strip()
                 
                 startTimeStamp = datetime.strptime(startTime, "%a, %d %b %Y %I:%M %p") 
@@ -117,7 +124,7 @@ def main():
                 # ticketPriceRangeSection
                 details["price"] = driver.find_element(By.ID, "ticketPriceRangeSection").text.strip() 
 
-                print(key, dict[key])
+                #print(key, dict[key])
                 time.sleep(1)
             except Exception: 
                     print("Something did not work")
@@ -129,6 +136,20 @@ def main():
     print(dict)
     print("Scraping completed!")
     driver.quit()
+
+    for id, event in dict.items():
+        print(event)
+        data = supabase.table("events").upsert({
+            "id": event["id"],
+            "start_time": event["startTime"],
+            "end_time": event["endTime"],
+            "location": event["location"],
+            "name": event["title"],
+            "society_id": event["hostedById"],
+            "description": event["desc"],
+            "category": event["category"],
+            "image": event["eventImage"]
+        }).execute()
 
 if __name__ == "__main__":
     main()
