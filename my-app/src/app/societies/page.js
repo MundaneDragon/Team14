@@ -45,11 +45,16 @@ export default function Societies({}) {
 		const res = example
 		setAllSocieties(res)
 		setFavourites(fav)
+
+		const newFavSocieties = []
 		for (const data of res) {
 			if (fav.includes(data.id)) {
-				setFavsocieties((prev) => [...prev, data])
+				newFavSocieties.push(data)
 			}
 		}
+		
+		setFavsocieties(newFavSocieties)
+
 	}, [])
 
   return (
