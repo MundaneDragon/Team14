@@ -51,7 +51,7 @@ export default function Home() {
 
         console.log(events);
       } catch (err) {
-        alert(err.message);
+        console(err.message);
       }
     };
 

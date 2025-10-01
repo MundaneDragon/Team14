@@ -35,7 +35,7 @@ export default function NavBar() {
                     setAvatar(fetchedAvatar);
                 }
             } catch (err) {
-                alert(err.message);
+                console(err.message);
             }
         };
     
@@ -168,7 +168,7 @@ export default function NavBar() {
                                 />
                             </div>
                         </PopoverTrigger>
-                        <PopoverContent className="flex flex-col gap-2 bg-white border-0">
+                        <PopoverContent className="flex flex-col gap-2 bg-white border-0 mr-4 ">
                             <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
                                 <span className="text-[1.1rem]" onClick={() => router.push("/societies")}>Societies</span>
                             </div>

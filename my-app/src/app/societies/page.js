@@ -36,13 +36,14 @@ export default function Societies({}) {
         setAllSocieties(societies);
         setDisplaySocieties(societies.slice(0, 36))
 
-        if (!favourites) {
+        if (favourites.length == 0) {
+          console.log("FETCHING FAVOURITES")
           const data = await fetchFavourites();
           setFavourites(data.favourite_societies);
         }
 
         console.log(societies);
-        console.log(favourites);
+        console.log("hello", favourites);
       } catch (err) {
         alert(err.message);
       }
@@ -54,6 +55,7 @@ export default function Societies({}) {
   useEffect(() => {
     console.log(currentMax)
     setDisplaySocieties(allSocieties.slice(0, Math.min(currentMax, allSocieties.length)))
+    console.log(allSocieties)
   }, [currentMax, allSocieties])
 
   useEffect(() => {
