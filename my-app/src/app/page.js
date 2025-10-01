@@ -77,7 +77,7 @@ export default function Home() {
   return (
     <MainBody>
         <div>
-          <div className="flex justify-between items-center pb-4">
+          <div className="flex justify-between items-center pb-4 md:flex-row flex-col gap-4">
             <div className="flex gap-2">
               <Select value={category} onValueChange={(val) => setCategory(val === "Any" ? "" : val)}>
                 <SelectTrigger className={category && "bg-white text-black"}>
@@ -129,7 +129,7 @@ export default function Home() {
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {recommendedEvents.map((eventData, index) => (
-              <Dialog>
+              <Dialog key={index}>
                 <DialogTrigger>
                   <EventCard key={index} eventData={eventData}/>
                 </DialogTrigger>
