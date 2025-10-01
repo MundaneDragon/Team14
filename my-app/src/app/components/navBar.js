@@ -31,7 +31,7 @@ export default function NavBar() {
                 <div className="flex justify-center gap-12">
                     <div className="flex gap-8 items-center cursor-pointer">
                         <Link className="font-bold text-xl" href="/">
-                            NetHub
+                            MissingLink
                         </Link>
 
                         <Link className='flex gap-2 cursor-pointer text-gray-500 hover:text-white transition-all duration-300 ease-in-out'

@@ -7,6 +7,7 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons"
 import EmailIcon from '@mui/icons-material/Email';
 import EventCard from '@/app/components/eventCard';
+import EventModal from '@/app/components/eventModal';
 import {
   Select,
   SelectContent,
@@ -15,14 +16,24 @@ import {
   SelectValue,
   SelectTriggerSort
 } from "@/app/components/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/app/components/dialog";
 import { useAtom } from 'jotai';
 import { societiesAtom } from "@/app/atoms/societiesAtom";
 import { favouritesAtom } from "@/app/atoms/favouritesAtom";
-import { fetchSocieties, updateFavourites, fetchFavourites } from '@/lib/fetch';
+import { eventsAtom } from "@/app/atoms/eventsAtom";
+import { fetchSocieties, updateFavourites, fetchFavourites, fetchEvents } from '@/lib/fetch';
 
 export default function Society() {
   const [societyData, setSocietyData] = useState(null);
   const [favourites, setFavourites] = useAtom(favouritesAtom);
+  const [events, setEvents] = useAtom(eventsAtom);
   const [sort, setSort] = useState("Name A-Z");
 
   const { id } = useParams();
@@ -43,6 +54,12 @@ export default function Society() {
         if (!favourites) {
           const data = await fetchFavourites();
           setFavourites(data.favourite_societies);
+        }
+
+        let foundEvent = events.find(event => event.society_id === Number(id));
+        if (!foundEvent) {
+          const fetchedEvents = await fetchEvents();
+          setEvents(fetchedEvents);
         }
       } catch (err) {
         alert(err.message);
@@ -120,9 +137,19 @@ export default function Society() {
       Upcoming Events
     </h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {/* {societyData.events.map((data, index) => {
-        return <EventCard key={index} eventData={data} />
-      })} */}
+      {events.map((data, index) => {
+        console.log(data.society_id, id);
+        if (data.society_id === Number(id)) {
+          return <Dialog key={index}>
+            <DialogTrigger className="flex">
+              <EventCard key={index} eventData={data}/>
+            </DialogTrigger>
+            <DialogContent>
+              <EventModal eventData={data} />
+            </DialogContent>
+          </Dialog>
+        }
+      })}
     </div>
   </MainBody>)
 }
