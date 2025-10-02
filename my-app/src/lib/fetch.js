@@ -99,6 +99,27 @@ export const fetchEventNetwork = async (eventId) => {
   return data;
 }
 
+export const fetchEventUsers = async (eventId) => {
+  const { data: interestData, error: interestError } = await supabase
+    .from('network_interests')
+    .select('user_id')
+    .eq('event_id', eventId);
+
+  if (interestError) throw new Error(interestError.message);
+
+  const userIds = interestData.map(item => item.user_id);
+  if (userIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .in('id', userIds);
+
+  if (error) throw new Error(error.message);
+
+  return data;
+};
+
 export const deleteNetwork = async (eventId) => {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;

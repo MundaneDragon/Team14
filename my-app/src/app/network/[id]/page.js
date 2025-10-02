@@ -5,13 +5,30 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import MainBody from '@/app/components/mainBody';
 import { useAuth } from '@/contexts/AuthContext';
 
+import { fetchEventUsers } from '@/lib/fetch';
+
 
 export default function LiveNetwork() {
   const { user, loading, signOut } = useAuth();
   const [userName, setUserName] = useState("")
-  const params = useParams()
+  const [users, setUsers] = useState([]);
+  const [arrived, setArrived] = useState(false);
+  const { id } = useParams();
+
 
   useEffect(() => {
+    const handleFetch = async () => {
+      try {
+        const eventUsers = await fetchEventUsers(id);
+        console.log(eventUsers);
+        setUsers(eventUsers);
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+
+    handleFetch();
+
     if (user) {
       setUserName(user.user_metadata?.username || user.email)
     }
@@ -20,26 +37,16 @@ export default function LiveNetwork() {
 
   return (
     <MainBody>
-      <div className='w-full flex justify-center pb-2'>
-        <p className='text-xl'>
+      <div className='w-full flex justify-center pb-4'>
+        <p className='text-xl drop-shadow-xl'>
           Find the people in your group!
         </p>
       </div>
       <div className='relative h-full flex w-full items-center flex-col font-semibold'>
-        <div className='absolute flex items-center justify-center bottom-1/3 bg-gray-400/50 h-96 w-96 rounded-full '>
-          <p className='w-64 h-64 bg-gray-400 rounded-full flex items-center justify-center text-xl'>
-            {userName}
-          </p>
-        </div>
-        <People pos="right-1/10" name="John" />
-        <People pos="bottom-1/10" name="Smith" />
-        <People pos="left-1/10" name="James"/>
+        {users.map((value, index) => {
+          return <BlackCircle key={index} data={value} arrived={arrived} setArrived={setArrived} />
+        })}
       </div>
-      <BlackCircle circleStyle="h-32 w-32 right-200"/>
-      <BlackCircle circleStyle="h-64 w-64"/>
-      <BlackCircle circleStyle="h-96 w-96 bottom-10"/>
-      <BlackCircle circleStyle="h-96 w-96 bottom-10 right-120"/>
-      <BlackCircle circleStyle="h-64 w-64 bottom-50 right-200"/>
     </MainBody>
   )
 }
@@ -56,13 +63,80 @@ function People({pos, name}) {
   )
 }
 
-function BlackCircle({ x,y,circleStyle}) {
+const BlackCircle = ({ minSize = 100, maxSize = 200, data, arrived, setArrived }) => {
+  const { username, avatar } = data;
+  const size = Math.floor(Math.random() * (maxSize - minSize + 1)) + minSize;
+  const x = Math.floor(Math.random() * (window.innerWidth - size));
+  const y = Math.floor(Math.random() * (window.innerHeight - size));
+
+  const haloSize = size * 1.5;
+  const haloOffset = (haloSize - size) / 2;
+
+  const pulseDuration = 1.5 + Math.random() * 1.5;
+  const pulseDelay = Math.random() * 1.5;
+
   return (
-    <div
-      className={`bg-gray-400/20 rounded-full absolute -z-5 ${circleStyle}`}
-    />
+    <>
+      <h1 
+        className='absolute text-white font-bold flex justify-center items-start drop-shadow-lg'
+        style={{
+          fontSize: `${size / 8}px`,
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `${x}px`,
+          top: `${y - (size / 4)}px`,
+          animation: `pulseAvatar ${pulseDuration}s ${pulseDelay}s infinite ease-in-out`
+        }}
+      >
+        Username
+      </h1>
+      <div
+        className="bg-[#282828] bg-cover bg-center border rounded-full absolute z-20 cursor-pointer"
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `${x}px`,
+          top: `${y}px`,
+          backgroundImage: avatar && `url(${avatar})`,
+          animation: `pulseAvatar ${pulseDuration}s ${pulseDelay}s infinite ease-in-out`
+        }}
+        onClick={() => setArrived(prev => !prev)}
+      />
+      <div
+        className="bg-white opacity-20 rounded-full absolute z-10"
+        style={{
+          backgroundColor: arrived ? "#B8FFC1": "#FFFFFF",
+          width: `${haloSize}px`,
+          height: `${haloSize}px`,
+          left: `${x - haloOffset}px`,
+          top: `${y - haloOffset}px`,
+          animation: `pulseAvatar ${pulseDuration}s ${pulseDelay}s infinite ease-in-out, pulseHalo ${pulseDuration}s ${pulseDelay}s infinite ease-in-out`
+        }}
+      />
+      <style jsx>{`
+        @keyframes pulseHalo {
+          0% { opacity: 0; }
+          50% { opacity: 0.2; }
+          100% { opacity: 0; }
+        }
+
+        @keyframes pulseAvatar {
+          0% { transform: scale(0.95); }
+          50% { transform: scale(1); }
+          100% { transform: scale(0.95); }
+        }
+      `}</style>
+    </>
   );
 }
+
+// function BlackCircle({ x,y,circleStyle}) {
+//   return (
+//     <div
+//       className={`bg-gray-400/20 rounded-full absolute -z-5 ${circleStyle}`}
+//     />
+//   );
+// }
 
 
 

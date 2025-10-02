@@ -70,7 +70,7 @@ export default function Society() {
           setEvents(fetchedEvents);
         }
       } catch (err) {
-        console(err.message);
+        console.error(err.message);
       }
     };
 
