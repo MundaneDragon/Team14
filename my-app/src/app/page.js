@@ -45,7 +45,15 @@ export default function Home() {
   useEffect(() => {
     const handleFetch = async () => {
       try {
-        const events = await fetchEvents();
+        let events = await fetchEvents();
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        events = events.filter(e => {
+          const start = new Date(e.start_time);
+          return start >= today; 
+        });
+
         setAllEvents(applySort(events, sort));
 
         if (!favourites) {
