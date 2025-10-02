@@ -4,12 +4,12 @@ import { default as ical } from 'ical-generator';
 
 /**
  * GET /api/ical/calendar/[token]
- * Generates an iCal calendar for a user based on their watchlist and timetable
+ * Generates an iCal calendar for a user based on their favorites and (timetable)
  * This endpoint is public but requires a valid token
  */
 export async function GET(request, { params }) {
   try {
-    const { token } = params;
+    const { token } = await params;
 
     if (!token) {
       return NextResponse.json(
@@ -20,11 +20,11 @@ export async function GET(request, { params }) {
 
     // Find user by token
     const { data: userData, error: tokenError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('ical_token', token)
-      .single();
-
+    .from('profiles')
+    .select('id, ical_token')
+    .eq('ical_token', token)
+    .single();
+    
     if (tokenError || !userData) {
       return NextResponse.json(
         { error: 'Invalid token' },
@@ -32,14 +32,16 @@ export async function GET(request, { params }) {
       );
     }
 
-    const userId = userData.user_id;
-
+    const userId = userData.id;
+    console.log('User ID:', userId);
 
     // Fetch user's watchlist events
     const { data: organizersIds, error: orgError } = await supabase
       .from('profiles')
       .select('favourite_societies')
       .eq('id', userId);
+
+    console.log('Favorite societies:', organizersIds);
 
     if (orgError) {
       console.error('Error fetching watchlist society events:', orgError);
@@ -51,15 +53,25 @@ export async function GET(request, { params }) {
 
     let organizerEvents = [];
     if (organizersIds && organizersIds.length > 0) {
+      const favSocieties = organizersIds[0]?.favourite_societies || [];
+      console.log('Fetching events for society IDs:', favSocieties);
+      
       const { data: orgEvents, error: orgEventsError } = await supabase
         .from('events')
         .select('*')
-        .in('society_id', organizersIds)
+        .in('society_id', favSocieties)
         .gte('start_time', new Date().toISOString()); // Only future events
+
+      console.log('Found events:', orgEvents?.length || 0);
+      console.log('Events data:', orgEvents);
 
       if (!orgEventsError && orgEvents) {
         organizerEvents = orgEvents;
+      } else if (orgEventsError) {
+        console.error('Error fetching events:', orgEventsError);
       }
+    } else {
+      console.log('No favorite societies found');
     }
 
     // Create iCal calendar
@@ -78,13 +90,20 @@ export async function GET(request, { params }) {
     // Add events from watched organizers (avoid duplicates)
     const watchlistEventIds = new Set();
 
+    console.log('Adding events to calendar:', organizerEvents.length);
+
     organizerEvents.forEach(event => {
-      if (watchlistEventIds.has(event.id)) return; // Skip duplicates
+      if (watchlistEventIds.has(event.id)) {
+        console.log('Skipping duplicate event:', event.title);
+        return; // Skip duplicates
+      }
+      
+      console.log('Adding event:', event.title, 'at', event.start_time);
       
       calendar.createEvent({
         start: new Date(event.start_time),
         end: event.end_time ? new Date(event.end_time) : new Date(new Date(event.start_time).getTime() + 3600000),
-        title: event.title,
+        summary: event.title,
         description: event.description || '',
         location: event.location || '',
         category: event.category || '',
@@ -95,7 +114,11 @@ export async function GET(request, { params }) {
           }
         ]
       });
+      
+      watchlistEventIds.add(event.id);
     });
+
+    console.log('Calendar generated with', watchlistEventIds.size, 'events');
 
     // Generate iCal string
     const icalString = calendar.toString();

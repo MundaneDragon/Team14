@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 /**
@@ -8,9 +8,28 @@ import crypto from 'crypto';
  */
 export async function GET(request) {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Get token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized - No auth token found' },
+        { status: 401 }
+      );
+    }
+
+    // Create Supabase client
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+
+    // Get user with token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
+      console.error('Auth error:', authError);
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -25,7 +44,10 @@ export async function GET(request) {
       .single();
 
     // If no token exists, create one
-    if (fetchError || !userData) {
+    let tokenData = userData;
+    
+    // Check if token is missing or is the string "NULL"
+    if (fetchError || !userData || !userData.ical_token || userData.ical_token === 'NULL') {
       const newToken = crypto.randomBytes(32).toString('hex');
       
       const { data: newTokenData, error: updateError } = await supabase
@@ -37,6 +59,7 @@ export async function GET(request) {
           onConflict: 'id'
         })
         .select()
+        .single();
 
       if (updateError) {
         console.error('Error creating iCal token:', updateError);
@@ -72,7 +95,25 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Get token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Unauthorized - No auth token found' },
+        { status: 401 }
+      );
+    }
+
+    // Create Supabase client
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+
+    // Get user with token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
       return NextResponse.json(
