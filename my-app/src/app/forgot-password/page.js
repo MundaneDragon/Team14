@@ -37,7 +37,7 @@ export default function ForgotPassword() {
         <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex w-full h-dvh justify-center items-center">
                 <SignCard>
-                    <img src="/googleiconrm.png" className="w-32 h-32"/>
+                    <img src="/logo.png" />
                     <h1 className="text-4xl font-semibold text-nowrap my-8">
                         Reset Password
                     </h1>
