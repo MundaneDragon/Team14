@@ -136,14 +136,17 @@ export default function Home() {
   const applySort = (array, sortBy) => {
     const newArr = [...array]
     console.log("The new arr is", newArr[0])
+    console.log("The sort by is", sortBy)
     if (sortBy === "Name A-Z") {
       newArr.sort((a, b) => a.title.localeCompare(b.name));
     } else if (sortBy === "Name Z-A") {
       newArr.sort((a, b) => b.title.localeCompare(a.name));
     } else if (sortBy === "Latest") {
-      array.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+      console.log("Trying to sort by latest")
+      newArr.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
     } else if (sortBy === "Soonest") {
-      array.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+      console.log("Trying to sort by soonest")
+      newArr.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     }
 
     return newArr
