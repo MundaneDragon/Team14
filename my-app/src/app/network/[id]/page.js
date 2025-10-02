@@ -58,7 +58,7 @@ export default function LiveNetwork() {
     };
 
     fetchGroup();
-  }, [loading])
+  }, [loading, users])
 
   return (
     <MainBody>
@@ -68,7 +68,7 @@ export default function LiveNetwork() {
         </p>
       </div>
       <div className='relative h-full flex w-full items-center flex-col font-semibold' id="circleContainer">
-        {users.map((value, index) => {
+        {users?.map((value, index) => {
           const container = document.getElementById('circleContainer');
           const { width, height } = container.getBoundingClientRect();
           return <BlackCircle key={index} data={value} arrived={arrived} setArrived={setArrived} userName={userName} containerWidth={width} containerHeight={height} />

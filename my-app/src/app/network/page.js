@@ -318,7 +318,7 @@ function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents, setSel
                 + Add Hint
                 </button>
                 <button
-                className="bg-[#A3CBFF] w-32 rounded-full text-black py-2 cursor-pointer hover:bg-[#5a7ca0] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
+                className="bg-[#FFFFFF] w-32 rounded-full text-black py-2 cursor-pointer hover:bg-gray-300 flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
