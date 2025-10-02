@@ -21,7 +21,7 @@ export default function EventModal({eventData}) {
 
   return (
     <div className="flex flex-col gap-6 w-full max-h-[80vh]">
-      <div className="flex items-center w-[90%] px-4">
+      <div className="items-start w-[90%] px-4 flex flex-col gap-2 ">
         <h1 className="font-bold text-3xl">
           {eventData.title}
         </h1>
