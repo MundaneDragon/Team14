@@ -34,11 +34,7 @@ import { Search } from "lucide-react";
 const EventCardSkeleton = () => {
   return (
     <div className="w-full transition-all duration-300 p-2 rounded-xl">
-      <div className="w-full h-40 bg-gray-400 rounded-xl relative">
-        <div className="w-full h-6 bg-gray-500 rounded-md absolute bottom-2 left-0 opacity-50" />
-      </div>
-      <div className="mt-2 w-3/4 h-4 bg-gray-500 rounded-md" />
-      <div className="mt-1 w-1/2 h-4 bg-gray-500 rounded-md" />
+      <div className="w-full h-40 bg-gray-400 rounded-xl relative"></div>
     </div>
   );
 };
