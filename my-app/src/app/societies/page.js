@@ -70,11 +70,11 @@ export default function Societies({}) {
       const { icalUrl, error } = await tokenResponse.json();
       console.log(icalUrl);
       if (error) {
-        alert('Failed to get calendar token: ' + error);
+        alert('Failed to get calendar: ' + error);
         return;
       }
 
-      // Download calendar file
+      // Download the calendar file
       const link = document.createElement('a');
       link.href = icalUrl;
       link.download = 'missinglink-events.ics';
