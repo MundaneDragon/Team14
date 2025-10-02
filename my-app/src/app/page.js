@@ -30,6 +30,7 @@ import { useAtom } from 'jotai';
 import { eventsAtom } from "@/app/atoms/eventsAtom";
 import { favouritesAtom } from "./atoms/favouritesAtom";
 import { Search } from "lucide-react";
+import { Toaster } from 'react-hot-toast'
 
 const EventCardSkeleton = () => {
   return (
@@ -193,6 +194,7 @@ export default function Home() {
 
   return (
     <MainBody>
+      <Toaster position="bottom-left" />
         <div>
           <div className="flex justify-between items-center pb-4 md:flex-row flex-col gap-4">
             <div className="flex gap-2 md:flex-row flex-col">
