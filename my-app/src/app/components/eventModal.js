@@ -2,8 +2,9 @@ import { TbLocationFilled } from "react-icons/tb";
 import { ClockIcon } from "@radix-ui/react-icons"
 import { IoMdPricetag } from "react-icons/io";
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
-
+import Link from "next/link";
 export default function EventModal({eventData}) {
+  console.log(eventData)
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
 
@@ -18,10 +19,16 @@ export default function EventModal({eventData}) {
 
   return (
     <div className="flex flex-col gap-6 max-h-[80vh]">
-      <div className="flex items-center w-[90%] px-4">
+      <div className="flex items-start w-[90%] px-4 flex-col ">
         <h1 className="font-bold text-3xl">
           {eventData.title}
         </h1>
+        <p className="flex gap-1">
+          Hosted by 
+          <Link className="underline hover:text-white/90" href={`/societies/${eventData.society_id}`}>
+            {eventData.societies.name}
+          </Link>
+        </p>
       </div>
       <div className="flex flex-col w-full overflow-y-auto px-4">
         <div className="flex flex-col px-4 pt-4 pb-8 gap-8">
