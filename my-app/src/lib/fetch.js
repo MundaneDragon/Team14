@@ -47,6 +47,10 @@ export const fetchFavourites = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;
 
+  if (!userId) {
+    return { favourite_societies: [] };
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .select("favourite_societies")
@@ -65,6 +69,33 @@ export const updateFavourites = async (favourites) => {
   const { error } = await supabase
     .from("profiles")
     .update({ favourite_societies: favourites })
+    .eq('id', userId);
+
+  if (error) throw new Error(error.message);
+}
+
+export const fetchNetwork = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("want_to_network")
+    .eq('id', userId)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export const updateNetwork = async (newNetwork) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ want_to_network: newNetwork })
     .eq('id', userId);
 
   if (error) throw new Error(error.message);

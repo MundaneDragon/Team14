@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import MainBody from "../components/mainBody";
 import SocietyCard from "../components/societyCard";
@@ -17,6 +18,7 @@ import {
 } from "../components/select";
 import SearchBar from "../components/searchBar";
 import { fetchSocieties, fetchFavourites } from "@/lib/fetch";
+import { supabase } from "@/lib/supabase";
 import { useAtom } from 'jotai';
 import { societiesAtom } from "@/app/atoms/societiesAtom";
 import { favouritesAtom  } from "../atoms/favouritesAtom";
@@ -24,6 +26,7 @@ import { favouritesAtom  } from "../atoms/favouritesAtom";
 
 export default function Societies({}) {
   const [sort, setSort] = useState("Name A-Z");
+  const [downloading, setDownloading] = useState(false);
   const [allSocieties, setAllSocieties] = useAtom(societiesAtom)
 	const [favourites, setFavourites] = useAtom(favouritesAtom)
   const [displaySocieties, setDisplaySocieties] = useState([])
@@ -52,6 +55,38 @@ export default function Societies({}) {
     
     handleFetch();
 	}, [])
+
+  const handleDownloadCalendar = async () => {
+    setDownloading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in to download your calendar');
+        return;
+      }
+
+      // Get iCal token
+      const tokenResponse = await fetch('/api/ical/token', {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      const { icalUrl, error } = await tokenResponse.json();
+      console.log(icalUrl);
+      if (error) {
+        alert('Failed to get calendar: ' + error);
+        return;
+      }
+
+      // Download the calendar file
+      const link = document.createElement('a');
+      link.href = icalUrl;
+      link.download = 'missinglink-events.ics';
+      link.click();
+    } catch (error) {
+      alert('Failed to download calendar: ' + error.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
   
   useEffect(() => {
     console.log(currentMax)
@@ -135,9 +170,19 @@ export default function Societies({}) {
           </div>
         </div>
         <div className="ml-2">
-          <h1 className="text-3xl lg:text-4xl font-semibold mb-8 mt-4 w-min">
-            Favourites
-          </h1>
+          <div className="flex justify-between items-center mb-8 mt-4">
+            <h1 className="text-3xl lg:text-4xl font-semibold w-min">
+              Favourites
+            </h1>
+            <button
+              onClick={handleDownloadCalendar}
+              disabled={downloading || favourites.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            >
+              <DownloadOutlinedIcon className="w-5 h-5" />
+              {downloading ? 'Downloading...' : 'Download Calendar'}
+            </button>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-5 gap-4">
             {allSocieties.map((data, index) => {
               if (favourites?.includes(data.id)) {

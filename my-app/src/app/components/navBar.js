@@ -21,11 +21,14 @@ import { Input } from './input';
 import { uploadImage, fetchAvatar } from '@/lib/fetch';
 import { useAtom } from 'jotai';
 import { avatarAtom } from "@/app/atoms/avatarAtom";
+import { supabase } from '@/lib/supabase';
 
 export default function NavBar() {
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
     const [avatar, setAvatar] = useAtom(avatarAtom);
+    const [icalUrl, setIcalUrl] = useState('');
+    const [showIcalModal, setShowIcalModal] = useState(false);
 
     useEffect(() => {
         const handleFetch = async () => {
@@ -34,8 +37,8 @@ export default function NavBar() {
                     const fetchedAvatar = await fetchAvatar();
                     setAvatar(fetchedAvatar);
                 }
-            } catch (err) {
-                console(err.message);
+            } catch (error) {
+                console.error("Logout error:", error);
             }
         };
     
@@ -59,6 +62,31 @@ export default function NavBar() {
             alert(err.message);
         }
     }
+
+    const handleGetIcalLink = async () => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const tokenResponse = await fetch('/api/ical/token', {
+                headers: { 'Authorization': `Bearer ${session.access_token}` }
+            });
+            const { icalUrl: url, error } = await tokenResponse.json();
+            
+            if (!error && url) {
+                const webcalUrl = url.replace(/^https?:\/\//, 'webcal://');
+                setIcalUrl(webcalUrl);
+                setShowIcalModal(true);
+            }
+        } catch (error) {
+            console.error('Failed to get iCal link:', error);
+        }
+    };
+
+    const copyIcalLink = () => {
+        navigator.clipboard.writeText(icalUrl);
+        alert('Calendar link copied!');
+    };
 
     const toggleMenu = () => {
         setMenuOpen(prev => !prev);
@@ -115,7 +143,10 @@ export default function NavBar() {
                                     </div>
                                 </HoverCardTrigger>
                                 <HoverCardContent className="flex flex-col gap-2 bg-white border-0">
-                                    <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                                    <div 
+                                        onClick={handleGetIcalLink}
+                                        className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer"
+                                    >
                                         <span className="text-[1.1rem]">iCal Link</span>
                                     </div>
 
@@ -177,7 +208,9 @@ export default function NavBar() {
                                 <span className="text-[1.1rem]" onClick={() => router.push("/network")}>Network</span>
                             </div>
 
-                            <div className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
+                            <div 
+                                onClick={handleGetIcalLink}
+                                className="flex flex-row items-center gap-5 hover:bg-accent p-2 rounded-md cursor-pointer">
                                 <span className="text-[1.1rem]">iCal Link</span>
                             </div>
 
@@ -191,8 +224,50 @@ export default function NavBar() {
                     </Popover>
                 </div>
             </div>
+
+            {/* iCal Modal */}
+            {showIcalModal && (
+                <div 
+                    className="fixed inset-0 flex items-start justify-center z-[100] pt-24 sm:pt-32 px-4" 
+                    onClick={() => setShowIcalModal(false)}
+                >
+                    <div 
+                        className="bg-white p-4 sm:p-6 rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg mb-8" 
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h2 className="text-lg sm:text-xl font-bold text-black mb-3">📅 Calendar Link</h2>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                            Copy and paste this link into your calendar app to sync events.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2 mb-4">
+                            <input
+                                type="text"
+                                value={icalUrl}
+                                readOnly
+                                className="flex-1 bg-gray-50 text-black px-3 py-2 rounded-lg border-2 border-gray-300 text-xs font-mono overflow-x-auto"
+                                onClick={(e) => e.target.select()}
+                            />
+                            <button
+                                onClick={copyIcalLink}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-semibold shadow-md whitespace-nowrap"
+                            >
+                                Copy
+                            </button>
+                        </div>
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 rounded">
+                            <p className="text-xs text-blue-800">
+                                <strong>Works with:</strong> Google Calendar, Apple Calendar, Outlook
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setShowIcalModal(false)}
+                            className="w-full bg-gray-800 hover:bg-gray-900 text-white py-2.5 rounded-lg font-semibold transition-colors text-sm"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>  
     )
-    
-    
 }

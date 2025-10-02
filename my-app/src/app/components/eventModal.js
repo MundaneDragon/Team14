@@ -3,6 +3,8 @@ import { ClockIcon } from "@radix-ui/react-icons"
 import { IoMdPricetag } from "react-icons/io";
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import Link from "next/link";
+import NetworkButton from "./networkButton";
+
 export default function EventModal({eventData}) {
   console.log(eventData)
   const formatTimestamp = (timestamp) => {
@@ -18,8 +20,8 @@ export default function EventModal({eventData}) {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-h-[80vh]">
-      <div className="flex items-start w-[90%] px-4 flex-col ">
+    <div className="flex flex-col gap-6 w-full max-h-[80vh]">
+      <div className="flex items-center w-[90%] px-4">
         <h1 className="font-bold text-3xl">
           {eventData.title}
         </h1>
@@ -56,14 +58,15 @@ export default function EventModal({eventData}) {
           <p>{eventData.description}</p>
         </div>
       </div>
-      <button className="w-full bg-[#A3CBFF] flex items-center justify-center py-2 rounded-full cursor-pointer gap-1 hover:bg-[#99bae4] shadow-xl text-black"
+      <NetworkButton eventId={eventData.id} />
+      {/* <button className="w-full bg-[#A3CBFF] flex items-center justify-center py-2 rounded-full cursor-pointer gap-1 hover:bg-[#99bae4] shadow-xl text-black"
         onClick={(e) => {
           e.stopPropagation()
           e.preventDefault()
         }}
       >
         Want to Network <LanOutlinedIcon fontSize="small"/>
-      </button>
+      </button> */}
     </div>
   )
 }
