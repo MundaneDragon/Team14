@@ -213,7 +213,7 @@ export default function Societies({}) {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {loading
               ? Array.from({ length: 20 }).map((_, index) => (
-                <SocietyCardSkeleton />
+                <SocietyCardSkeleton key={index}/>
               )) 
               : displaySocieties.map((data, index) => {
                 if (!favourites?.includes(data.id)) {
