@@ -160,12 +160,15 @@ export const updateHint = async (eventId, hint) => {
 }
 
 export const fetchNetworkHints = async (eventId) => {
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { data, error } = await supabase
     .from("network_interests")
     .select("user_id, hint")
     .eq("event_id", eventId)
     .not("hint", "is", null)
     .neq("hint", "")
+    .neq("user_id", user.id)
 
     if (error) throw new Error(error.message);
     return data;   
