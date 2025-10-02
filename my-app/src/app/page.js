@@ -31,6 +31,13 @@ import { eventsAtom } from "@/app/atoms/eventsAtom";
 import { favouritesAtom } from "./atoms/favouritesAtom";
 import { Search } from "lucide-react";
 
+const EventCardSkeleton = () => {
+  return (
+    <div className="w-full transition-all duration-300 p-2 rounded-xl animate-pulse">
+      <div className="w-full h-40 bg-gray-400 rounded-xl relative"></div>
+    </div>
+  );
+};
 
 export default function Home() {
   const [category, setCategory] = useState("");
@@ -41,6 +48,7 @@ export default function Home() {
   const [displayEvents, setDisplayEvents] = useState([])
   const [currentMax, setCurrentMax] = useState(36)
   const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const handleFetch = async () => {
@@ -64,6 +72,8 @@ export default function Home() {
         console.log(events);
       } catch (err) {
         console(err.message);
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -263,7 +273,11 @@ export default function Home() {
             All Events
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displayEvents?.map((eventData, index) => {
+            {loading 
+              ? Array.from({ length: 20 }).map((_, index) => (
+                <EventCardSkeleton />
+              )) 
+            : displayEvents?.map((eventData, index) => {
               if (!favourites?.includes(eventData.society_id)) {
                 return <Dialog key={index}>
                   <DialogTrigger className="flex">
@@ -276,7 +290,7 @@ export default function Home() {
               }
             })}
           </div>
-          {displayEvents?.length === 0 && 
+          {!loading && displayEvents?.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               We couldn't find any matching results. 
               <span> 

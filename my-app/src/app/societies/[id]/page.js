@@ -58,7 +58,15 @@ export default function Society() {
 
         let foundEvent = events.find(event => event.society_id === Number(id));
         if (!foundEvent) {
-          const fetchedEvents = await fetchEvents();
+          let fetchedEvents = await fetchEvents();
+
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); 
+          fetchedEvents = fetchedEvents.filter(e => {
+            const start = new Date(e.start_time);
+            return start >= today; 
+          });
+
           setEvents(fetchedEvents);
         }
       } catch (err) {
@@ -97,7 +105,7 @@ export default function Society() {
               <div className={`h-54 w-54 bg-gray-500 rounded-full bg-cover bg-center flex items-end justify-end relative `}
                 style={societyData?.image && { backgroundImage: `url(${societyData?.image})` }}
               >
-                {!societyData?.image && (
+                {(!societyData?.image || societyData?.image.includes("profile.php"))&& (
                     <div className="absolute right-[25%] bottom-[25%] flex flex-col w-[50%] h-[50%] text-black text-3xl font-bold items-center justify-center">
                         <span>NO</span>
                         <span>IMAGE</span>
@@ -173,5 +181,10 @@ export default function Society() {
         }
       })}
     </div>
+    {
+      events.length === 0 && <div className='text-gray-400'>
+        No Events Upcoming :(
+      </div>
+    }
   </MainBody>)
 }

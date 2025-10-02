@@ -23,6 +23,13 @@ import { useAtom } from 'jotai';
 import { societiesAtom } from "@/app/atoms/societiesAtom";
 import { favouritesAtom  } from "../atoms/favouritesAtom";
 
+const SocietyCardSkeleton = () => {
+  return (
+    <div className="w-full flex flex-col gap-4 items-center p-2 rounded-xl animate-pulse">
+      <div className="w-40 h-40 bg-gray-700 rounded-full" />
+    </div>
+  );
+};
 
 export default function Societies({}) {
   const [sort, setSort] = useState("Name A-Z");
@@ -32,10 +39,12 @@ export default function Societies({}) {
   const [displaySocieties, setDisplaySocieties] = useState([])
   const [currentMax, setCurrentMax] = useState(36)
   const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(false)
 
 	useEffect(() => {
     const handleFetch = async () => {
       try {
+        setLoading(true)
         const societies = await fetchSocieties();
         setAllSocieties(societies);
         setDisplaySocieties(societies.slice(0, 36))
@@ -50,6 +59,8 @@ export default function Societies({}) {
         console.log("hello", favourites);
       } catch (err) {
         alert(err.message);
+      } finally {
+        setLoading(false)
       }
     };
     
@@ -106,7 +117,6 @@ export default function Societies({}) {
       setDisplaySocieties(allSocieties.slice(0, Math.min(currentMax, allSocieties.length)))
     }
 
-    
     console.log(allSocieties)
   }, [currentMax, allSocieties, search])
   
@@ -201,13 +211,17 @@ export default function Societies({}) {
             All Societies
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {displaySocieties.map((data, index) => {
-              if (!favourites?.includes(data.id)) {
-                return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
-              }
-            })}
+            {loading
+              ? Array.from({ length: 20 }).map((_, index) => (
+                <SocietyCardSkeleton />
+              )) 
+              : displaySocieties.map((data, index) => {
+                if (!favourites?.includes(data.id)) {
+                  return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
+                }
+              })}
           </div>
-          {displaySocieties.length === 0 && 
+          {!loading && displaySocieties.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               We couldn't find any matching results. 
               <span> 
