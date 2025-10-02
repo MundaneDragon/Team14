@@ -144,7 +144,7 @@ export async function POST(request) {
       );
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://missing-link-six.vercel.app'||'http://localhost:3000';
     const icalUrl = `${baseUrl}/api/ical/calendar/${data.ical_token}`;
 
     return NextResponse.json({ 

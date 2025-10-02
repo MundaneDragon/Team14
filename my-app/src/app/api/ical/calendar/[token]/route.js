@@ -79,7 +79,7 @@ export async function GET(request, { params }) {
       name: 'MissingLink Events',
       description: 'Your personalized event calendar from MissingLink',
       timezone: 'Australia/Sydney',
-      ttl: 300, // Refresh every 5 minutes
+      ttl: 30, // Refresh every 5 minutes
       prodId: {
         company: 'MissingLink',
         product: 'Event Calendar'
