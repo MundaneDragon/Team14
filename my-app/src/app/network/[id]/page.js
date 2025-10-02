@@ -4,9 +4,38 @@ import { useParams } from 'next/navigation'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import MainBody from '@/app/components/mainBody';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRef } from 'react';
 
-import { fetchEventUsers } from '@/lib/fetch';
+import { fetchEventUsers, getOrCreateUserGroup, toggleArrival } from '@/lib/fetch';
 
+const circles = [];
+
+function generatePosition(size, containerWidth, containerHeight) {
+  let tries = 0;
+  while (tries < 100) {
+    const x = Math.random() * (containerWidth - size);
+    const y = Math.random() * (containerHeight - size);
+
+    const overlapping = circles.some(c => {
+      const dx = c.x - x;
+      const dy = c.y - y;
+      const distance = Math.sqrt(dx*dx + dy*dy);
+      return distance < (c.size + size) / 2 + 10;
+    });
+
+    if (!overlapping) {
+      circles.push({ x, y, size });
+      return { x, y };
+    }
+
+    tries++;
+  }
+
+  const x = Math.random() * (containerWidth - size);
+  const y = Math.random() * (containerHeight - size);
+  circles.push({ x, y, size });
+  return { x, y };
+}
 
 export default function LiveNetwork() {
   const { user, loading, signOut } = useAuth();
@@ -17,22 +46,18 @@ export default function LiveNetwork() {
 
 
   useEffect(() => {
-    const handleFetch = async () => {
+    const fetchGroup = async () => {
       try {
-        const eventUsers = await fetchEventUsers(id);
-        console.log(eventUsers);
-        setUsers(eventUsers);
+        const { data, username } = await getOrCreateUserGroup(id);
+        setUsers(data);
+        setUserName(username);
+        console.log(data, username)
       } catch (err) {
         console.error(err.message);
       }
     };
 
-    handleFetch();
-
-    if (user) {
-      setUserName(user.user_metadata?.username || user.email)
-    }
-    console.log(user)
+    fetchGroup();
   }, [loading])
 
   return (
@@ -42,35 +67,34 @@ export default function LiveNetwork() {
           Find the people in your group!
         </p>
       </div>
-      <div className='relative h-full flex w-full items-center flex-col font-semibold'>
+      <div className='relative h-full flex w-full items-center flex-col font-semibold' id="circleContainer">
         {users.map((value, index) => {
-          return <BlackCircle key={index} data={value} arrived={arrived} setArrived={setArrived} />
+          const container = document.getElementById('circleContainer');
+          const { width, height } = container.getBoundingClientRect();
+          return <BlackCircle key={index} data={value} arrived={arrived} setArrived={setArrived} userName={userName} containerWidth={width} containerHeight={height} />
         })}
       </div>
     </MainBody>
   )
 }
 
-function People({pos, name}) {
-  return (
-    <div className={`${pos} flex flex-col items-center absolute `}>
-      <div className='w-24 h-24  rounded-full bg-gray-400'>
-      </div>
-      <div>
-        {name}
-      </div>
-    </div>
-  )
-}
+const BlackCircle = ({ minSize = 100, maxSize = 200, data, arrived, setArrived, userName, containerWidth, containerHeight }) => {
+  const { profiles } = data;
+  const sizeRef = useRef(null);
+  if (!sizeRef.current) {
+    const minSize = 100;
+    const maxSize = 200;
+    const size = Math.floor(Math.random() * (maxSize - minSize + 1)) + minSize;
+    const haloSize = size * 1.5;
+    sizeRef.current = { size, haloSize };
+  }
+  const { size, haloSize } = sizeRef.current;
+  // const x = Math.floor(Math.random() * (window.innerWidth - size));
+  // const y = Math.floor(Math.random() * (window.innerHeight - size));
 
-const BlackCircle = ({ minSize = 100, maxSize = 200, data, arrived, setArrived }) => {
-  const { username, avatar } = data;
-  const size = Math.floor(Math.random() * (maxSize - minSize + 1)) + minSize;
-  const x = Math.floor(Math.random() * (window.innerWidth - size));
-  const y = Math.floor(Math.random() * (window.innerHeight - size));
-
-  const haloSize = size * 1.5;
   const haloOffset = (haloSize - size) / 2;
+  const position = useRef(generatePosition(haloSize, containerWidth, containerHeight));
+  const { x, y } = position.current;
 
   const pulseDuration = 1.5 + Math.random() * 1.5;
   const pulseDelay = Math.random() * 1.5;
@@ -88,7 +112,7 @@ const BlackCircle = ({ minSize = 100, maxSize = 200, data, arrived, setArrived }
           animation: `pulseAvatar ${pulseDuration}s ${pulseDelay}s infinite ease-in-out`
         }}
       >
-        Username
+        {userName}
       </h1>
       <div
         className="bg-[#282828] bg-cover bg-center border rounded-full absolute z-20 cursor-pointer"
@@ -97,10 +121,10 @@ const BlackCircle = ({ minSize = 100, maxSize = 200, data, arrived, setArrived }
           height: `${size}px`,
           left: `${x}px`,
           top: `${y}px`,
-          backgroundImage: avatar && `url(${avatar})`,
+          backgroundImage: profiles.avatar && `url(${profiles.avatar})`,
           animation: `pulseAvatar ${pulseDuration}s ${pulseDelay}s infinite ease-in-out`
         }}
-        onClick={() => setArrived(prev => !prev)}
+        onClick={() => {setArrived(prev => !prev); toggleArrival();}}
       />
       <div
         className="bg-white opacity-20 rounded-full absolute z-10"
@@ -129,31 +153,3 @@ const BlackCircle = ({ minSize = 100, maxSize = 200, data, arrived, setArrived }
     </>
   );
 }
-
-// function BlackCircle({ x,y,circleStyle}) {
-//   return (
-//     <div
-//       className={`bg-gray-400/20 rounded-full absolute -z-5 ${circleStyle}`}
-//     />
-//   );
-// }
-
-
-
-// {events: [
-//     {
-//         id, startTime, endTime, location, title, hostedById, desc, network, societyName, category, eventImage
-//     }
-// ]
-
-// users: [
-//     {
-//         id, email, password, favouriteSocietyIDs, iCalLink, joinedNetworksIDs
-//     }
-// ]
-
-// societies: [
-//     {
-//         id, societyName, societyImage, societyUniversity, societyDesc, socialMedia, 
-//     }
-// ]}
