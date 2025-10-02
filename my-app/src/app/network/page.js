@@ -7,31 +7,60 @@ import { useState, useEffect } from "react";
 import { useAtom } from 'jotai';
 import { networkAtom } from "@/app/atoms/networkAtom";
 import { eventsAtom } from "@/app/atoms/eventsAtom";
-import { updateNetwork, fetchEvents, fetchNetwork } from '@/lib/fetch';
+import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork } from '@/lib/fetch';
 
+const NetworkCardSkeleton = () => {
+  return (
+    <div className="flex flex-col w-[95%] md:flex-row gap-4 p-4 rounded-xl animate-pulse">
+      <div className="flex gap-2 items-center">
+        <div className="h-36 w-1 bg-gray-500 rounded-md" />
+        <div className="w-80 h-40 bg-gray-400 rounded-xl" />
+      </div>
 
+      <div className="flex flex-col gap-2 flex-1 mt-2 md:mt-0">
+        <div className="w-3/4 h-6 bg-gray-500 rounded-md" />
+        <div className="w-1/2 h-6 bg-gray-500 rounded-md" />
+        <div className="w-full h-4 bg-gray-500 rounded-md" />
+        <div className="w-2/3 h-4 bg-gray-500 rounded-md" />
+      </div>
+    </div>
+  )
+}
 
 export default function Network() {
     const [networkingEvents, setNetworkingEvents] = useState([]);
     const [network, setNetwork] = useAtom(networkAtom);
     const [events, setEvents] = useAtom(eventsAtom);
+    const [loading, setLoading] = useState(false)
+    const [loggedIn, setLoggedIn] = useState(false)
 
     useEffect(() => {
         const handleFetch = async () => {
             try {
-            const fetchedNetwork = await fetchNetwork();
-            const fetchedEvents = await fetchEvents();
+                setLoading(true)
+                const { user, fetchedNetwork } = await fetchNetwork();
+                setLoggedIn(!!user)
 
-            setNetwork(fetchedNetwork.want_to_network);
-            setEvents(fetchedEvents);
+                console.log(fetchedNetwork);
+                const fetchedEvents = await fetchEvents();
 
-            setNetworkingEvents(
-                fetchedEvents.filter((event) =>
-                fetchedNetwork.want_to_network.includes(event.id)
-                )
-            );
+                setNetwork(fetchedNetwork);
+                setEvents(fetchedEvents);
+
+                const eventsWithNetwork = await Promise.all(
+                    fetchedEvents
+                    .filter(event => fetchedNetwork.map(e => e.event_id).includes(event.id))
+                    .map(async (event) => {
+                        const network = await fetchEventNetwork(event.id);
+                        return { ...event, network };
+                    })
+                );
+
+                setNetworkingEvents(eventsWithNetwork);
             } catch (err) {
-            alert(err.message);
+                setLoggedIn(false)
+            } finally {
+                setLoading(false)
             }
         };
 
@@ -43,23 +72,38 @@ export default function Network() {
 
     return (
         <MainBody>
-            <div className="flex flex-col gap-4">
+            {loading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <NetworkCardSkeleton/>
+                )) 
+            : (loggedIn 
+            ? <div className="flex flex-col gap-4">
                 <h1 className="text-2xl font-semibold py-2 ml-7">
                     Planned Networking Events
                 </h1>
                 <div className="flex flex-col w-full items-center gap-2">
                     {networkingEvents.map((value, index) => {
-                        return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} />
+                        return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} setNetworkingEvents={setNetworkingEvents} />
                     })}
                 </div>
             </div>
+            : <div className="flex flex-col items-center justify-center w-full py-10 px-6 bg-[#101727]/50  rounded-2xl shadow-md text-center gap-4">
+                <h2 className="text-3xl font-semibold text-white">
+                    Sign in to continue
+                </h2>
+                <p className="text-gray-500 text-lg max-w-md">
+                    Log in to start automating your networking!
+                </p>
+            </div>
+
+            )}
         </MainBody>
     )
 }
 
 
 
-function NetworkCard({data, setNetwork, userNetwork}) {
+function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents}) {
     const { id, image, title, start_time, end_time, network } = data;
     
     const timeUntil = (startTime, endTime) => {
@@ -121,7 +165,11 @@ function NetworkCard({data, setNetwork, userNetwork}) {
                     {formatTimeUntil(start_time)}
                 </p>
                 <p>
-                    {network.length} people planning to network
+                    {network.length === 1 ? (
+                        <span>1 person planning to network</span>
+                    ) : (
+                        <span>{network.length} people planning to network</span>
+                    )}
                 </p>
             </div>
             <button className="bg-[#FFA3A3] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
@@ -129,10 +177,11 @@ function NetworkCard({data, setNetwork, userNetwork}) {
                     e.preventDefault()
                     e.stopPropagation()
 
-                    const newNetwork = userNetwork.filter((eventId => eventId !== id));
+                    const newNetwork = userNetwork.filter(event => event.event_id !== id);
             
                     setNetwork(newNetwork);
-                    updateNetwork(newNetwork);
+                    setNetworkingEvents(prev => prev.filter(event => event.id !== id));
+                    deleteNetwork(id);
             }}>
                 Remove 
                 <div className="pt-0.5">

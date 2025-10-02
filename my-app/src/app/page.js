@@ -31,6 +31,13 @@ import { eventsAtom } from "@/app/atoms/eventsAtom";
 import { favouritesAtom } from "./atoms/favouritesAtom";
 import { Search } from "lucide-react";
 
+const EventCardSkeleton = () => {
+  return (
+    <div className="w-full transition-all duration-300 p-2 rounded-xl animate-pulse">
+      <div className="w-full h-40 bg-gray-400 rounded-xl relative"></div>
+    </div>
+  );
+};
 
 export default function Home() {
   const [category, setCategory] = useState("");
@@ -41,11 +48,20 @@ export default function Home() {
   const [displayEvents, setDisplayEvents] = useState([])
   const [currentMax, setCurrentMax] = useState(36)
   const [search, setSearch] = useState("")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const handleFetch = async () => {
       try {
-        const events = await fetchEvents();
+        let events = await fetchEvents();
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        events = events.filter(e => {
+          const start = new Date(e.start_time);
+          return start >= today; 
+        });
+
         setAllEvents(applySort(events, sort));
 
         if (!favourites) {
@@ -56,6 +72,8 @@ export default function Home() {
         console.log(events);
       } catch (err) {
         console(err.message);
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -136,14 +154,17 @@ export default function Home() {
   const applySort = (array, sortBy) => {
     const newArr = [...array]
     console.log("The new arr is", newArr[0])
+    console.log("The sort by is", sortBy)
     if (sortBy === "Name A-Z") {
       newArr.sort((a, b) => a.title.localeCompare(b.name));
     } else if (sortBy === "Name Z-A") {
       newArr.sort((a, b) => b.title.localeCompare(a.name));
     } else if (sortBy === "Latest") {
-      array.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+      console.log("Trying to sort by latest")
+      newArr.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
     } else if (sortBy === "Soonest") {
-      array.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+      console.log("Trying to sort by soonest")
+      newArr.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     }
 
     return newArr
@@ -252,7 +273,11 @@ export default function Home() {
             All Events
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displayEvents?.map((eventData, index) => {
+            {loading 
+              ? Array.from({ length: 20 }).map((_, index) => (
+                <EventCardSkeleton />
+              )) 
+            : displayEvents?.map((eventData, index) => {
               if (!favourites?.includes(eventData.society_id)) {
                 return <Dialog key={index}>
                   <DialogTrigger className="flex">
@@ -265,7 +290,7 @@ export default function Home() {
               }
             })}
           </div>
-          {displayEvents?.length === 0 && 
+          {!loading && displayEvents?.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               We couldn't find any matching results. 
               <span> 

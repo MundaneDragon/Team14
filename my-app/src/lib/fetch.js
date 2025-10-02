@@ -79,24 +79,69 @@ export const fetchNetwork = async () => {
   const userId = user?.id;
 
   const { data, error } = await supabase
-    .from("profiles")
-    .select("want_to_network")
-    .eq('id', userId)
-    .single();
+    .from("network_interests")
+    .select("event_id")
+    .eq('user_id', userId);
+
+  if (error) throw new Error(error.message);
+
+  return { user, fetchedNetwork: data };
+}
+
+export const fetchEventNetwork = async (eventId) => {
+  const { data, error } = await supabase
+    .from("network_interests")
+    .select("user_id")
+    .eq('event_id', eventId);
 
   if (error) throw new Error(error.message);
 
   return data;
 }
 
-export const updateNetwork = async (newNetwork) => {
+export const fetchEventUsers = async (eventId) => {
+  const { data: interestData, error: interestError } = await supabase
+    .from('network_interests')
+    .select('user_id')
+    .eq('event_id', eventId);
+
+  if (interestError) throw new Error(interestError.message);
+
+  const userIds = interestData.map(item => item.user_id);
+  if (userIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .in('id', userIds);
+
+  if (error) throw new Error(error.message);
+
+  return data;
+};
+
+export const deleteNetwork = async (eventId) => {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;
 
   const { error } = await supabase
-    .from("profiles")
-    .update({ want_to_network: newNetwork })
-    .eq('id', userId);
+    .from('network_interests')
+    .delete()
+    .eq('user_id', userId)
+    .eq('event_id', eventId);
+
+  if (error) throw new Error(error.message);
+}
+
+export const updateNetwork = async (eventId) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+
+  const { error } = await supabase
+  .from('network_interests')
+  .upsert({ user_id: userId, event_id: eventId }, {
+    onConflict: ['user_id', 'event_id']
+  });
 
   if (error) throw new Error(error.message);
 }
