@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { useAtom } from 'jotai';
 import { networkAtom } from "@/app/atoms/networkAtom";
 import { eventsAtom } from "@/app/atoms/eventsAtom";
-import { updateNetwork, fetchEvents, fetchNetwork } from '@/lib/fetch';
+import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork } from '@/lib/fetch';
 
 
 
@@ -19,19 +19,25 @@ export default function Network() {
     useEffect(() => {
         const handleFetch = async () => {
             try {
-            const fetchedNetwork = await fetchNetwork();
-            const fetchedEvents = await fetchEvents();
+                const fetchedNetwork = await fetchNetwork();
+                console.log(fetchedNetwork);
+                const fetchedEvents = await fetchEvents();
 
-            setNetwork(fetchedNetwork.want_to_network);
-            setEvents(fetchedEvents);
+                setNetwork(fetchedNetwork);
+                setEvents(fetchedEvents);
 
-            setNetworkingEvents(
-                fetchedEvents.filter((event) =>
-                fetchedNetwork.want_to_network.includes(event.id)
-                )
-            );
+                const eventsWithNetwork = await Promise.all(
+                    fetchedEvents
+                    .filter(event => fetchedNetwork.map(e => e.event_id).includes(event.id))
+                    .map(async (event) => {
+                        const network = await fetchEventNetwork(event.id);
+                        return { ...event, network };
+                    })
+                );
+
+                setNetworkingEvents(eventsWithNetwork);
             } catch (err) {
-            alert(err.message);
+                alert(err.message);
             }
         };
 
@@ -49,7 +55,7 @@ export default function Network() {
                 </h1>
                 <div className="flex flex-col w-full items-center gap-2">
                     {networkingEvents.map((value, index) => {
-                        return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} />
+                        return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} setNetworkingEvents={setNetworkingEvents} />
                     })}
                 </div>
             </div>
@@ -59,7 +65,7 @@ export default function Network() {
 
 
 
-function NetworkCard({data, setNetwork, userNetwork}) {
+function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents}) {
     const { id, image, title, start_time, end_time, network } = data;
     
     const timeUntil = (startTime, endTime) => {
@@ -121,7 +127,11 @@ function NetworkCard({data, setNetwork, userNetwork}) {
                     {formatTimeUntil(start_time)}
                 </p>
                 <p>
-                    {network.length} people planning to network
+                    {network.length === 1 ? (
+                        <span>1 person planning to network</span>
+                    ) : (
+                        <span>{network.length} people planning to network</span>
+                    )}
                 </p>
             </div>
             <button className="bg-[#FFA3A3] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
@@ -129,10 +139,11 @@ function NetworkCard({data, setNetwork, userNetwork}) {
                     e.preventDefault()
                     e.stopPropagation()
 
-                    const newNetwork = userNetwork.filter((eventId => eventId !== id));
+                    const newNetwork = userNetwork.filter(event => event.event_id !== id);
             
                     setNetwork(newNetwork);
-                    updateNetwork(newNetwork);
+                    setNetworkingEvents(prev => prev.filter(event => event.id !== id));
+                    deleteNetwork(id);
             }}>
                 Remove 
                 <div className="pt-0.5">

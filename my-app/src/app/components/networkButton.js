@@ -17,7 +17,7 @@ export default function NetworkButton({ className = "", eventId }) {
         const newNetwork = [...network, eventId];
 
         setNetwork(newNetwork);
-        updateNetwork(newNetwork);
+        updateNetwork(eventId);
       }}
     >
       Want to Network <LanOutlinedIcon fontSize="small" />
