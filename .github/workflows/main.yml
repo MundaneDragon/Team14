@@ -3,7 +3,7 @@ name: Run Scrapers
 on:
   workflow_dispatch:
   schedule:
-    - cron: "40 * * * *"
+    - cron: "*/5 * * * *"
 
 jobs:
   scrape:
