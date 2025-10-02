@@ -275,7 +275,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading 
               ? Array.from({ length: 20 }).map((_, index) => (
-                <EventCardSkeleton />
+                <EventCardSkeleton key={index}/>
               )) 
             : displayEvents?.map((eventData, index) => {
               if (!favourites?.includes(eventData.society_id)) {

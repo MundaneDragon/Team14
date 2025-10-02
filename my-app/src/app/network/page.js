@@ -7,7 +7,61 @@ import { useState, useEffect } from "react";
 import { useAtom } from 'jotai';
 import { networkAtom } from "@/app/atoms/networkAtom";
 import { eventsAtom } from "@/app/atoms/eventsAtom";
-import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork } from '@/lib/fetch';
+import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork, updateHint } from '@/lib/fetch';
+
+const AddHintModal = ({ eventId, onClose }) => {
+  const [hint, setHint] = useState("");
+
+  const handleSave = () => {
+    updateHint(eventId, hint);
+    setHint("");
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      ></div>
+
+      <div
+        className="relative bg-gray-900 rounded-xl p-6 w-full max-w-md z-10 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col gap-4">
+          <label htmlFor="hint" className="text-white font-medium">
+            Your hint (max. 50 chars)
+          </label>
+          <input
+            id="hint"
+            className="w-full px-3 py-2 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g. Wearing a red hoodie"
+            value={hint}
+            onChange={(e) => setHint(e.target.value)}
+            maxLength={50}
+          />
+        </div>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+            onClick={handleSave}
+            disabled={!hint.trim()}
+          >
+            Save Hint
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const NetworkCardSkeleton = () => {
   return (
@@ -33,6 +87,7 @@ export default function Network() {
     const [events, setEvents] = useAtom(eventsAtom);
     const [loading, setLoading] = useState(false)
     const [loggedIn, setLoggedIn] = useState(false)
+    const [selectedEvent, setSelectedEvent] = useState(null)
 
     useEffect(() => {
         const handleFetch = async () => {
@@ -74,7 +129,7 @@ export default function Network() {
         <MainBody>
             {loading
             ? Array.from({ length: 3 }).map((_, index) => (
-                <NetworkCardSkeleton/>
+                <NetworkCardSkeleton key={index}/>
                 )) 
             : (loggedIn 
             ? <div className="flex flex-col gap-4">
@@ -83,7 +138,7 @@ export default function Network() {
                 </h1>
                 <div className="flex flex-col w-full items-center gap-2">
                     {networkingEvents.map((value, index) => {
-                        return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} setNetworkingEvents={setNetworkingEvents} />
+                        return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} setNetworkingEvents={setNetworkingEvents} setSelectedEvent={setSelectedEvent}/>
                     })}
                 </div>
             </div>
@@ -97,13 +152,19 @@ export default function Network() {
             </div>
 
             )}
+            {loggedIn && selectedEvent && (
+                <AddHintModal
+                    eventId={selectedEvent}
+                    onClose={() => setSelectedEvent(null)}
+                />
+            )}
         </MainBody>
     )
 }
 
 
 
-function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents}) {
+function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents, setSelectedEvent}) {
     const { id, image, title, start_time, end_time, network } = data;
     
     const timeUntil = (startTime, endTime) => {
@@ -172,22 +233,34 @@ function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents}) {
                     )}
                 </p>
             </div>
-            <button className="bg-[#FFA3A3] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
-            onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
+            <div className="flex flex-row gap-2">
+                <button
+                className="bg-[#A3CBFF] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#99bae4] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedEvent(id);
+                }}
+                >
+                + Add Hint
+                </button>
+                <button className="bg-[#FFA3A3] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
+                onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
 
-                    const newNetwork = userNetwork.filter(event => event.event_id !== id);
-            
-                    setNetwork(newNetwork);
-                    setNetworkingEvents(prev => prev.filter(event => event.id !== id));
-                    deleteNetwork(id);
-            }}>
-                Remove 
-                <div className="pt-0.5">
-                    <CloseIcon/>
-                </div>
-            </button>
+                        const newNetwork = userNetwork.filter(event => event.event_id !== id);
+                
+                        setNetwork(newNetwork);
+                        setNetworkingEvents(prev => prev.filter(event => event.id !== id));
+                        deleteNetwork(id);
+                }}>
+                    Remove 
+                    <div className="pt-0.5">
+                        <CloseIcon/>
+                    </div>
+                </button>
+            </div>
         </div>
     </Link>
     )

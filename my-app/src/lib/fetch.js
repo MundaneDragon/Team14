@@ -125,6 +125,19 @@ export const updateNetwork = async (eventId) => {
   if (error) throw new Error(error.message);
 }
 
+export const updateHint = async (eventId, hint) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+
+  const { error } = await supabase
+  .from('network_interests')
+  .upsert({ user_id: userId, event_id: eventId, hint: hint }, {
+    onConflict: ['user_id', 'event_id']
+  });
+
+  if (error) throw new Error(error.message);
+}
+
 export const uploadImage = async ({ e }) => {
   const file = e.target.files[0];
   if (!file) {

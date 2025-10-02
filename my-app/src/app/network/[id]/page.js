@@ -45,13 +45,22 @@ export default function LiveNetwork() {
 }
 
 function People({pos, name}) {
+  const [showHint, setShowHint] = useState(false)
+  const hint = "wearing a red hoodie and black pants and glasses s"
+
   return (
-    <div className={`${pos} flex flex-col items-center absolute `}>
-      <div className='w-24 h-24  rounded-full bg-gray-400'>
+    <div className={`${pos} flex flex-col items-center absolute `}
+      onMouseEnter={() => setShowHint(true)}
+      onMouseLeave={() => setShowHint(false)}
+    >
+      <div className="w-24 h-24 rounded-full bg-gray-400 relative">
+        {showHint && (
+          <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 w-40 bg-gray-800 text-white text-sm p-2 rounded-lg shadow-lg z-50">
+            {hint || "No hint available"}
+          </div>
+        )}
       </div>
-      <div>
-        {name}
-      </div>
+      <div className="mt-1 text-center">{name}</div>
     </div>
   )
 }
