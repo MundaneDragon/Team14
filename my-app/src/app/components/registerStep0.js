@@ -9,7 +9,7 @@ export default function RegisterStep0({ nextStep }) {
     return (
         <div className="flex w-full h-dvh justify-center items-center">
             <SignCard>
-                <img src="/googleiconrm.png" className="w-32 h-32"/>
+                <img src="/logo.png"/>
                 <h1 className="text-4xl font-semibold text-nowrap my-16">
                     Start <span className="text-[#A3CBFF]"> networking</span>
                 </h1>

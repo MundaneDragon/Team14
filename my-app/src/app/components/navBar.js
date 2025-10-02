@@ -100,7 +100,7 @@ export default function NavBar() {
                 <div className="flex justify-center gap-12">
                     <div className="flex gap-8 items-center cursor-pointer">
                         <Link className="font-bold text-xl" href="/">
-                            MissingLink
+                            <img src="/logo.png" className="h-8"/>
                         </Link>
 
                         <Link className='flex gap-2 cursor-pointer text-gray-500 hover:text-white transition-all duration-300 ease-in-out'
@@ -186,7 +186,7 @@ export default function NavBar() {
             <div className="p-4 flex justify-between md:hidden items-center">
                 <div className="flex gap-2 items-center">
                     <h1 className="font-bold text-xl">
-                        MissingLink
+                        <img src="/logo.png" className="h-8"/>
                     </h1>
                 </div>
                 <div className='cursor-pointer text-2xl flex items-center'> 
