@@ -24,25 +24,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./components/dialog";
-
+import SearchBar from "./components/searchBar";
 import { fetchEvents, fetchFavourites } from "@/lib/fetch";
 import { useAtom } from 'jotai';
 import { eventsAtom } from "@/app/atoms/eventsAtom";
 import { favouritesAtom } from "./atoms/favouritesAtom";
+import { Search } from "lucide-react";
 
 
 export default function Home() {
   const [category, setCategory] = useState("");
   const [recency, setRecency] = useState("");
-  const [sort, setSort] = useState("Name A-Z");
+  const [sort, setSort] = useState("Soonest");
   const [allEvents, setAllEvents] = useAtom(eventsAtom);
   const [favourites, setFavourites] = useAtom(favouritesAtom);
+  const [displayEvents, setDisplayEvents] = useState([])
+  const [currentMax, setCurrentMax] = useState(36)
+  const [search, setSearch] = useState("")
 
   useEffect(() => {
     const handleFetch = async () => {
       try {
         const events = await fetchEvents();
-        setAllEvents(events);
+        setAllEvents(applySort(events, sort));
 
         if (!favourites) {
           const data = await fetchFavourites();
@@ -58,12 +62,120 @@ export default function Home() {
     handleFetch();
   }, [])
 
+  useEffect(() => {
+    console.log(currentMax)
+    if (category !== "" || search !== "" || recency !== "") {
+      // If one of the filters is active we display according to the filter
+      const filteredEvents = []
+      for (const event of allEvents) {
+        let valid = false 
+        if (category !==  "") {
+          // If category is defined we need category + search term to match
+          if (
+            event.category === category && 
+            (event.title.toLowerCase().includes(search.toLowerCase()) || 
+            event.societies.name.toLowerCase().includes(search.toLowerCase()))
+          ) {
+            valid = true 
+          }
+        } else {
+          // Just need to search term to match
+          if (event.title.toLowerCase().includes(search.toLowerCase()) ||
+           event.societies.name.toLowerCase().includes(search.toLowerCase())) {
+            valid = true
+          }
+        }
+
+        if (valid === false) {
+          continue 
+        }
+
+        // The current event matches the search term + category, now checks the date 
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setDate(endOfDay.getDate() + 1);
+
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay()); 
+        startOfWeek.setHours(0,0,0,0);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 7);
+
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        
+        const currentDate = new Date(event.start_time)
+        if (recency === "Today") {
+          if (currentDate >= startOfDay && currentDate < endOfDay) {
+            filteredEvents.push(event)
+          }
+        } else if (recency === "This Week") {
+          if (currentDate >= startOfWeek && currentDate < endOfWeek) {
+            filteredEvents.push(event)
+          }
+        } else if (recency === "This Month") {
+          if (currentDate >= startOfMonth && currentDate < endOfMonth) {
+            filteredEvents.push(event)
+          }
+        } else {
+          filteredEvents.push(event)
+        }
+
+      }
+      console.log("Filtered events are", filteredEvents, "and category is", category)
+      setDisplayEvents(filteredEvents)
+    } else {
+      // If no filters are active we default to the infinite scrolling
+      setDisplayEvents(allEvents.slice(0, Math.min(currentMax, allEvents.length)))
+    }
+    
+  }, [currentMax, allEvents, category, search, recency])
+
+  const applySort = (array, sortBy) => {
+    const newArr = [...array]
+    console.log("The new arr is", newArr[0])
+    if (sortBy === "Name A-Z") {
+      newArr.sort((a, b) => a.title.localeCompare(b.name));
+    } else if (sortBy === "Name Z-A") {
+      newArr.sort((a, b) => b.title.localeCompare(a.name));
+    } else if (sortBy === "Latest") {
+      array.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+    } else if (sortBy === "Soonest") {
+      array.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+    }
+
+    return newArr
+  }
+
+  useEffect(() => {
+    setAllEvents(prev => applySort(prev, sort))
+  }, [sort])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      if (scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 200) {
+        setCurrentMax(prev => prev + 36) 
+      }
+
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <MainBody>
         <div>
           <div className="flex justify-between items-center pb-4 md:flex-row flex-col gap-4">
             <div className="flex gap-2">
+              <SearchBar placeholder="Search Event or Society" setSearch={setSearch}/>
               <Select value={category} onValueChange={(val) => setCategory(val === "Any" ? "" : val)}>
                 <SelectTrigger className={category && "bg-white text-black"}>
                   <SelectValue placeholder="Categories" />
@@ -99,10 +211,10 @@ export default function Home() {
                   <SelectValue />
                 </SelectTriggerSort>
                 <SelectContent>
+                  <SelectItem value="Soonest">Soonest</SelectItem>
                   <SelectItem value="Name A-Z">Name A-Z</SelectItem>
                   <SelectItem value="Name Z-A">Name Z-A</SelectItem>
                   <SelectItem value="Latest">Latest</SelectItem>
-                  <SelectItem value="Soonest">Soonest</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -140,7 +252,7 @@ export default function Home() {
             All Events
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allEvents?.map((eventData, index) => {
+            {displayEvents?.map((eventData, index) => {
               if (!favourites?.includes(eventData.society_id)) {
                 return <Dialog key={index}>
                   <DialogTrigger className="flex">
@@ -153,7 +265,7 @@ export default function Home() {
               }
             })}
           </div>
-          {allEvents?.length === 0 && 
+          {displayEvents?.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               We couldn't find any matching results. 
               <span> 

@@ -16,20 +16,22 @@ import {
   SelectValue,
   SelectTriggerSort
 } from "../components/select";
+import SearchBar from "../components/searchBar";
 import { fetchSocieties, fetchFavourites } from "@/lib/fetch";
 import { supabase } from "@/lib/supabase";
 import { useAtom } from 'jotai';
 import { societiesAtom } from "@/app/atoms/societiesAtom";
 import { favouritesAtom  } from "../atoms/favouritesAtom";
 
+
 export default function Societies({}) {
-  const [category, setCategory] = useState("");
   const [sort, setSort] = useState("Name A-Z");
   const [downloading, setDownloading] = useState(false);
   const [allSocieties, setAllSocieties] = useAtom(societiesAtom)
 	const [favourites, setFavourites] = useAtom(favouritesAtom)
   const [displaySocieties, setDisplaySocieties] = useState([])
   const [currentMax, setCurrentMax] = useState(36)
+  const [search, setSearch] = useState("")
 
 	useEffect(() => {
     const handleFetch = async () => {
@@ -37,20 +39,20 @@ export default function Societies({}) {
         const societies = await fetchSocieties();
         setAllSocieties(societies);
         setDisplaySocieties(societies.slice(0, 36))
-
+        
         if (favourites.length == 0) {
           console.log("FETCHING FAVOURITES")
           const data = await fetchFavourites();
           setFavourites(data.favourite_societies);
         }
-
+        
         console.log(societies);
         console.log("hello", favourites);
       } catch (err) {
         alert(err.message);
       }
     };
-
+    
     handleFetch();
 	}, [])
 
@@ -85,18 +87,55 @@ export default function Societies({}) {
       setDownloading(false);
     }
   };
+  
   useEffect(() => {
     console.log(currentMax)
-    setDisplaySocieties(allSocieties.slice(0, Math.min(currentMax, allSocieties.length)))
+    if (search !== "") {
+      // If one of the filters is active we display according to the filter
+      const filteredSocieties = []
+
+      for (const soc of allSocieties) {
+        if (soc.name.toLowerCase().includes(search.toLowerCase())) {
+          filteredSocieties.push(soc)
+        }
+      }
+
+      setDisplaySocieties(filteredSocieties)
+    } else {
+      // If no filters are active we default to the infinite scrolling
+      setDisplaySocieties(allSocieties.slice(0, Math.min(currentMax, allSocieties.length)))
+    }
+
+    
     console.log(allSocieties)
-  }, [currentMax, allSocieties])
+  }, [currentMax, allSocieties, search])
+  
+  const applySort = (array, sortBy) => {
+    const newArr = [...array]
+    console.log("The new arr is", newArr[0])
+    if (sortBy === "Name A-Z") {
+      newArr.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "Name Z-A") {
+      newArr.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (sortBy === "Latest") {
+      newArr.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    } else if (sortBy === "Oldest") {
+      newArr.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
+    return newArr
+  }
+
+  useEffect(() => {
+    setAllSocieties(prev => applySort(prev, sort))
+  }, [sort])
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-      if (scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 100) {
-        setCurrentMax(prev => prev + 28) 
+      
+      if (scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 200) {
+        setCurrentMax(prev => prev + 36) 
       }
 
     };
@@ -111,36 +150,11 @@ export default function Societies({}) {
   return (
     <MainBody>
         <div>
-          <div className="flex justify-between items-center border-gray-700 border-b-1 pb-4">
+          <div className="flex justify-between items-center border-gray-700 border-b-1 pb-4 md:flex-row flex-col gap-2">
             <div className="flex gap-2">
-              <Select value={category} onValueChange={(val) => setCategory(val === "Any" ? "" : val)}>
-                <SelectTrigger className={category && "bg-white text-black"}>
-                  <SelectValue placeholder="Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Any" className="text-[rgba(0,0,0,0.25)]">Any</SelectItem>
-                  <SelectItem value="Academic">Academic</SelectItem>
-                  <SelectItem value="Academic and Professional">Academic and Professional</SelectItem>
-                  <SelectItem value="Charity & Social Impact">Charity & Social Impact</SelectItem>
-                  <SelectItem value="Community & Inclusion">Community & Inclusion</SelectItem>
-                  <SelectItem value="Faculty & Constituent">Faculty & Constituent</SelectItem>
-                  <SelectItem value="Fitness & Recreation">Fitness & Recreation</SelectItem>
-                  <SelectItem value="Food & Drink">Food & Drink</SelectItem>
-                  <SelectItem value="Games & Animation">Games & Animation</SelectItem>
-                  <SelectItem value="Hobby & Special Interest">Hobby & Special Interest</SelectItem>
-                  <SelectItem value="International & Cultural">International & Cultural</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                  <SelectItem value="Political">Political</SelectItem>
-                  <SelectItem value="Postgraduate">Postgraduate</SelectItem>
-                  <SelectItem value="Professional & Networking">Professional & Networking</SelectItem>
-                  <SelectItem value="Residential">Residential</SelectItem>
-                  <SelectItem value="Spirituality & Faith">Spirituality & Faith</SelectItem>
-                  <SelectItem value="Sports and Fitness">Sports and Fitness</SelectItem>
-                  <SelectItem value="Technology & Projects">Technology & Projects</SelectItem>
-                </SelectContent>
-              </Select>
+              <SearchBar placeholder="Search Societies" setSearch={setSearch}/>
             </div>
-            <div className="border-l-1 pl-4">
+            <div className="border-l-1">
               <Select value={sort} onValueChange={(val) => setSort(val)}>
                 <SelectTriggerSort>
                   <SelectValue />
@@ -148,8 +162,8 @@ export default function Societies({}) {
                 <SelectContent>
                   <SelectItem value="Name A-Z">Name A-Z</SelectItem>
                   <SelectItem value="Name Z-A">Name Z-A</SelectItem>
-                  <SelectItem value="Latest">Latest</SelectItem>
-                  <SelectItem value="Soonest">Soonest</SelectItem>
+                  <SelectItem value="Latest">Newest</SelectItem>
+                  <SelectItem value="Oldest">Oldest</SelectItem>
                 </SelectContent>
               </Select>
             </div>
