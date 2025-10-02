@@ -4,6 +4,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 import traceback
 import time
 import re
@@ -15,18 +17,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+url = os.environ.get("SUPABASE_URL")
 key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") 
 supabase = create_client(url, key)
 
 TARGET = "https://campus.hellorubric.com/search?type=societies"
 
-driver = webdriver.Chrome()
+def get_driver():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--remote-debugging-port=9222")
+    chrome_options.add_argument("--user-data-dir=/tmp/chrome-user-data")
+
+    return webdriver.Chrome(options=chrome_options)
 
 def main():
     # ToDo: Someone add supabase to this pls 
     
     # Goes to the clubs 
+    driver = get_driver()
     driver.get(TARGET)
 
     while True:
@@ -38,12 +51,12 @@ def main():
         time.sleep(2)
 
         #Uncomment this when you want to go through every event
-        # while True:
-        #     try: 
-        #         driver.find_element(By.XPATH, "//*[text()='Load More']").click()
-        #         time.sleep(0.5)
-        #     except Exception:
-        #         break
+        while True:
+            try: 
+                driver.find_element(By.XPATH, "//*[text()='Load More']").click()
+                time.sleep(0.5)
+            except Exception:
+                break
         
         # time.sleep(1)
         cards = WebDriverWait(driver, 10).until(
@@ -69,7 +82,7 @@ def main():
                 # print("destination is", dest)
                 # print(card.text)
 
-        print(dict)
+        #print(dict)
         time.sleep(2)
 
         # id, societyName, societyImage, societyUniversity, societyDesc, socialMedia, 
@@ -99,7 +112,7 @@ def main():
                 # Maybe social media later but we don't have time for it right now 
                 # details["socialMedia"] = 
                 time.sleep(1)
-                print(key, dict[key])
+                #print(key, dict[key])
             except Exception: 
                 print("Something did not work")
                 print(key)
@@ -107,9 +120,8 @@ def main():
         # At this point we've gone through all the societies
         break 
     
-    print(dict)
-    print(len(dict))
-    print("Scraping completed!")
+    #print(dict)
+    print("Scraping completed! Upserted " + str(len(dict)) + " societies")
     driver.quit()
 
     for id, society in dict.items(): 

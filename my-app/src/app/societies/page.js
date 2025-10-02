@@ -18,25 +18,34 @@ import {
 } from "../components/select";
 import { fetchSocieties, fetchFavourites } from "@/lib/fetch";
 import { supabase } from "@/lib/supabase";
+import { useAtom } from 'jotai';
+import { societiesAtom } from "@/app/atoms/societiesAtom";
+import { favouritesAtom  } from "../atoms/favouritesAtom";
 
 export default function Societies({}) {
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("Name A-Z");
-  const [allSocieties, setAllSocieties] = useState([])
-	const [favourites, setFavourites] = useState([])
   const [downloading, setDownloading] = useState(false);
+  const [allSocieties, setAllSocieties] = useAtom(societiesAtom)
+	const [favourites, setFavourites] = useAtom(favouritesAtom)
+  const [displaySocieties, setDisplaySocieties] = useState([])
+  const [currentMax, setCurrentMax] = useState(36)
 
 	useEffect(() => {
     const handleFetch = async () => {
       try {
         const societies = await fetchSocieties();
         setAllSocieties(societies);
+        setDisplaySocieties(societies.slice(0, 36))
 
-        const data = await fetchFavourites();
-        setFavourites(data.favourite_societies);
+        if (favourites.length == 0) {
+          console.log("FETCHING FAVOURITES")
+          const data = await fetchFavourites();
+          setFavourites(data.favourite_societies);
+        }
 
         console.log(societies);
-        console.log(favourites);
+        console.log("hello", favourites);
       } catch (err) {
         alert(err.message);
       }
@@ -76,6 +85,28 @@ export default function Societies({}) {
       setDownloading(false);
     }
   };
+  useEffect(() => {
+    console.log(currentMax)
+    setDisplaySocieties(allSocieties.slice(0, Math.min(currentMax, allSocieties.length)))
+    console.log(allSocieties)
+  }, [currentMax, allSocieties])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 100) {
+        setCurrentMax(prev => prev + 28) 
+      }
+
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <MainBody>
@@ -140,12 +171,12 @@ export default function Societies({}) {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-5 gap-4">
             {allSocieties.map((data, index) => {
-              if (favourites.includes(data.id)) {
+              if (favourites?.includes(data.id)) {
                 return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
               }
             })}
           </div>
-          {favourites.length === 0 && 
+          {favourites?.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               You haven't favourited any societies yet.
             </div>
@@ -156,13 +187,13 @@ export default function Societies({}) {
             All Societies
           </h1>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {allSocieties.map((data, index) => {
-              if (!favourites.includes(data.id)) {
+            {displaySocieties.map((data, index) => {
+              if (!favourites?.includes(data.id)) {
                 return <SocietyCard key={index} data={data} favourites={favourites} setFavourites={setFavourites}/>;
               }
             })}
           </div>
-          {allSocieties.length === 0 && 
+          {displaySocieties.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               We couldn't find any matching results. 
               <span> 

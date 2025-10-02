@@ -7,6 +7,7 @@ import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import EventCard from "./components/eventCard";
 import MainBody from "./components/mainBody";
+import EventModal from "./components/eventModal";
 import {
   Select,
   SelectContent,
@@ -24,54 +25,38 @@ import {
   DialogTrigger,
 } from "./components/dialog";
 
-const all = [
-  {title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"}, 
-      
-    {title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"},
-    {title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"},
-    {title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"},
-    {title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"},
-    {title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"}
-]
+import { fetchEvents, fetchFavourites } from "@/lib/fetch";
+import { useAtom } from 'jotai';
+import { eventsAtom } from "@/app/atoms/eventsAtom";
+import { favouritesAtom } from "./atoms/favouritesAtom";
 
-const rec = [
-  {title: "2025 CEUS AGM", 
-      clubLogo: "/society.webp", 
-      society: "UNSW Chemical Engineering Undergraduate Society",
-      time: "9 Oct 2024, 6:00 PM", 
-      picture: "/society.webp"}
-]
 
 export default function Home() {
   const [category, setCategory] = useState("");
   const [recency, setRecency] = useState("");
   const [sort, setSort] = useState("Name A-Z");
-  const [recommendedEvents, setRecommendedEvents] = useState(rec);
-  const [allEvents, setAllEvents] = useState(all);
+  const [allEvents, setAllEvents] = useAtom(eventsAtom);
+  const [favourites, setFavourites] = useAtom(favouritesAtom);
+
+  useEffect(() => {
+    const handleFetch = async () => {
+      try {
+        const events = await fetchEvents();
+        setAllEvents(events);
+
+        if (!favourites) {
+          const data = await fetchFavourites();
+          setFavourites(data.favourite_societies);
+        }
+
+        console.log(events);
+      } catch (err) {
+        console(err.message);
+      }
+    };
+
+    handleFetch();
+  }, [])
 
 
   return (
@@ -128,18 +113,20 @@ export default function Home() {
             Recommended
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recommendedEvents.map((eventData, index) => (
-              <Dialog key={index}>
-                <DialogTrigger>
-                  <EventCard key={index} eventData={eventData}/>
-                </DialogTrigger>
-                <DialogContent>
-                  <div className="w-[160px] h-[40px] bg-red-500" />
-                </DialogContent>
-              </Dialog>
-            ))}
+            {allEvents?.map((eventData, index) => {
+              if (favourites?.includes(eventData.society_id)) {
+                return <Dialog key={index}>
+                  <DialogTrigger className="flex">
+                    <EventCard key={index} eventData={eventData}/>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <EventModal eventData={eventData} />
+                  </DialogContent>
+                </Dialog>
+              }
+            })}
           </div>
-          {recommendedEvents.length === 0 && 
+          {favourites?.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               No recommendations yet. 
               <span> 
@@ -153,11 +140,20 @@ export default function Home() {
             All Events
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allEvents.map((eventData, index) => (
-              <EventCard key={index} eventData={eventData}/>
-            ))}
+            {allEvents?.map((eventData, index) => {
+              if (!favourites?.includes(eventData.society_id)) {
+                return <Dialog key={index}>
+                  <DialogTrigger className="flex">
+                    <EventCard key={index} eventData={eventData}/>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <EventModal eventData={eventData} />
+                  </DialogContent>
+                </Dialog>
+              }
+            })}
           </div>
-          {allEvents.length === 0 && 
+          {allEvents?.length === 0 && 
             <div className="text-white/60 flex flex-col w-full items-center">
               We couldn't find any matching results. 
               <span> 
