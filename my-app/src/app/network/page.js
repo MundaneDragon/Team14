@@ -32,12 +32,15 @@ export default function Network() {
     const [network, setNetwork] = useAtom(networkAtom);
     const [events, setEvents] = useAtom(eventsAtom);
     const [loading, setLoading] = useState(false)
+    const [loggedIn, setLoggedIn] = useState(false)
 
     useEffect(() => {
         const handleFetch = async () => {
             try {
                 setLoading(true)
-                const fetchedNetwork = await fetchNetwork();
+                const { user, fetchedNetwork } = await fetchNetwork();
+                setLoggedIn(!!user)
+
                 console.log(fetchedNetwork);
                 const fetchedEvents = await fetchEvents();
 
@@ -55,7 +58,7 @@ export default function Network() {
 
                 setNetworkingEvents(eventsWithNetwork);
             } catch (err) {
-                alert(err.message);
+                setLoggedIn(false)
             } finally {
                 setLoading(false)
             }
@@ -69,20 +72,31 @@ export default function Network() {
 
     return (
         <MainBody>
-            <div className="flex flex-col gap-4">
+            {loading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <NetworkCardSkeleton/>
+                )) 
+            : (loggedIn 
+            ? <div className="flex flex-col gap-4">
                 <h1 className="text-2xl font-semibold py-2 ml-7">
                     Planned Networking Events
                 </h1>
                 <div className="flex flex-col w-full items-center gap-2">
-                    {loading
-                    ? Array.from({ length: 3 }).map((_, index) => (
-                        <NetworkCardSkeleton/>
-                        )) 
-                    : networkingEvents.map((value, index) => {
+                    {networkingEvents.map((value, index) => {
                         return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} setNetworkingEvents={setNetworkingEvents} />
                     })}
                 </div>
             </div>
+            : <div className="flex flex-col items-center justify-center w-full py-10 px-6 bg-[#101727]/50  rounded-2xl shadow-md text-center gap-4">
+                <h2 className="text-3xl font-semibold text-white">
+                    Sign in to continue
+                </h2>
+                <p className="text-gray-500 text-lg max-w-md">
+                    Log in to start automating your networking!
+                </p>
+            </div>
+
+            )}
         </MainBody>
     )
 }
