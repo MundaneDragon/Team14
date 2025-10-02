@@ -69,9 +69,25 @@ export default function Society() {
     handleFetch();
   }, [])
 
-  if (!societyData) {
-    return;
+  const applySort = (array, sortBy) => {
+    const newArr = [...array]
+    console.log("The new arr is", newArr[0])
+    if (sortBy === "Name A-Z") {
+      newArr.sort((a, b) => a.title.localeCompare(b.name));
+    } else if (sortBy === "Name Z-A") {
+      newArr.sort((a, b) => b.title.localeCompare(a.name));
+    } else if (sortBy === "Oldest") {
+      array.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+    } else if (sortBy === "Newest") {
+      array.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+    }
+
+    return newArr
   }
+
+  useEffect(() => {
+    setEvents(prev => applySort(prev, sort))
+  }, [sort])
   
   return (
   <MainBody>
@@ -79,9 +95,9 @@ export default function Society() {
       <div className='flex flex-col gap-4 items-center'>
           <div className="w-full flex flex-col gap-4 items-center p-2 rounded-xl">
               <div className={`h-54 w-54 bg-gray-500 rounded-full bg-cover bg-center flex items-end justify-end relative `}
-                style={societyData.image && { backgroundImage: `url(${societyData.image})` }}
+                style={societyData?.image && { backgroundImage: `url(${societyData?.image})` }}
               >
-                {!societyData.image && (
+                {!societyData?.image && (
                     <div className="absolute right-[25%] bottom-[25%] flex flex-col w-[50%] h-[50%] text-black text-3xl font-bold items-center justify-center">
                         <span>NO</span>
                         <span>IMAGE</span>
@@ -96,9 +112,9 @@ export default function Society() {
                           let newFavourites = [];
                           
                           if (favourites?.includes(societyData.id)) {
-                              newFavourites = favourites?.filter((fav => fav !== societyData.id));
+                              newFavourites = favourites?.filter((fav => fav !== societyData?.id));
                           } else {
-                              newFavourites = [...favourites, societyData.id];
+                              newFavourites = [...favourites, societyData?.id];
                           }
       
                           setFavourites(newFavourites);
@@ -106,7 +122,7 @@ export default function Society() {
                       }
                   }
                   >
-                      {favourites?.includes(societyData.id) ? (
+                      {favourites?.includes(societyData?.id) ? (
                           <StarFilledIcon className="w-6 h-6 text-[#FFDFA3]"/>
                       ) : (
                           <StarIcon className="w-6 h-6 text-[#FFFFFF]"/>
@@ -117,10 +133,10 @@ export default function Society() {
       </div>
       <div className='flex flex-col gap-8'>
         <h1 className='font-semibold text-3xl '>
-          {societyData.name}
+          {societyData?.name}
         </h1>
         <p className='h-54 overflow-auto'>
-          {societyData.description}
+          {societyData?.description}
         </p>
       </div>
     </div>
@@ -133,8 +149,8 @@ export default function Society() {
           <SelectContent>
             <SelectItem value="Name A-Z">Name A-Z</SelectItem>
             <SelectItem value="Name Z-A">Name Z-A</SelectItem>
-            <SelectItem value="Latest">Latest</SelectItem>
-            <SelectItem value="Soonest">Soonest</SelectItem>
+            <SelectItem value="Newest">Newest</SelectItem>
+            <SelectItem value="Oldest">Oldest</SelectItem>
           </SelectContent>
         </Select>
       </div>

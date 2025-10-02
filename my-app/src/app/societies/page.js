@@ -128,9 +128,9 @@ export default function Societies({}) {
       newArr.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === "Name Z-A") {
       newArr.sort((a, b) => b.name.localeCompare(a.name));
-    } else if (sortBy === "Latest") {
-      newArr.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     } else if (sortBy === "Oldest") {
+      newArr.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    } else if (sortBy === "Newest") {
       newArr.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
 
@@ -173,7 +173,7 @@ export default function Societies({}) {
                 <SelectContent>
                   <SelectItem value="Name A-Z">Name A-Z</SelectItem>
                   <SelectItem value="Name Z-A">Name Z-A</SelectItem>
-                  <SelectItem value="Latest">Newest</SelectItem>
+                  <SelectItem value="Newest">Newest</SelectItem>
                   <SelectItem value="Oldest">Oldest</SelectItem>
                 </SelectContent>
               </Select>
