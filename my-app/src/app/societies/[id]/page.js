@@ -70,7 +70,7 @@ export default function Society() {
           setEvents(fetchedEvents);
         }
       } catch (err) {
-        console(err.message);
+        console.error(err.message);
       }
     };
 
@@ -105,6 +105,7 @@ export default function Society() {
               <div className={`h-54 w-54 bg-gray-500 rounded-full bg-cover bg-center flex items-end justify-end relative `}
                 style={societyData?.image && { backgroundImage: `url(${societyData?.image})` }}
               >
+                <img src={societyData?.image} alt="Society logo" className="sr-only" />
                 {(!societyData?.image || societyData?.image.includes("profile.php"))&& (
                     <div className="absolute right-[25%] bottom-[25%] flex flex-col w-[50%] h-[50%] text-black text-3xl font-bold items-center justify-center">
                         <span>NO</span>

@@ -19,10 +19,10 @@ export async function GET(request) {
       );
     }
 
-    // Create Supabase client
+    // Create Supabase client with service role key to bypass RLS
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
     // Get user with token
@@ -37,11 +37,14 @@ export async function GET(request) {
     }
 
     // Check if user already has a token
+    console.log('Fetching iCal token for user:', user.id);
     let { data: userData, error: fetchError } = await supabase
       .from('profiles')
       .select('ical_token')
       .eq('id', user.id)
       .single();
+
+    console.log('Fetch result:', { userData, fetchError });
 
     // If no token exists, create one
     let tokenData = userData;
@@ -58,13 +61,22 @@ export async function GET(request) {
         }, {
           onConflict: 'id'
         })
-        .select()
+        .select('ical_token')
         .single();
 
       if (updateError) {
         console.error('Error creating iCal token:', updateError);
+        console.error('Update error details:', JSON.stringify(updateError));
         return NextResponse.json(
-          { error: 'Failed to create iCal token' },
+          { error: 'Failed to create iCal token', details: updateError.message },
+          { status: 500 }
+        );
+      }
+
+      if (!newTokenData) {
+        console.error('No data returned from upsert');
+        return NextResponse.json(
+          { error: 'Failed to create iCal token - no data returned' },
           { status: 500 }
         );
       }
@@ -106,10 +118,10 @@ export async function POST(request) {
       );
     }
 
-    // Create Supabase client
+    // Create Supabase client with service role key to bypass RLS
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
     // Get user with token
@@ -148,7 +160,7 @@ export async function POST(request) {
     const icalUrl = `${baseUrl}/api/ical/calendar/${data.ical_token}`;
 
     return NextResponse.json({ 
-      token: data.token,
+      token: data.ical_token,
       icalUrl 
     });
   } catch (error) {

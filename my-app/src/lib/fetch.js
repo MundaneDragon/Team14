@@ -99,6 +99,27 @@ export const fetchEventNetwork = async (eventId) => {
   return data;
 }
 
+export const fetchEventUsers = async (eventId) => {
+  const { data: interestData, error: interestError } = await supabase
+    .from('network_interests')
+    .select('user_id')
+    .eq('event_id', eventId);
+
+  if (interestError) throw new Error(interestError.message);
+
+  const userIds = interestData.map(item => item.user_id);
+  if (userIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .in('id', userIds);
+
+  if (error) throw new Error(error.message);
+
+  return data;
+};
+
 export const deleteNetwork = async (eventId) => {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;
@@ -174,3 +195,116 @@ export const uploadImage = async ({ e }) => {
 
   return data.publicUrl;
 }
+
+export const getOrCreateUserGroup = async (eventId) => {
+  const { data: existingGroups, error: groupCheckError } = await supabase
+    .from('event_groups')
+    .select('id')
+    .eq('event_id', eventId);
+
+  if (groupCheckError) throw new Error(groupCheckError.message);
+
+  if (!existingGroups || existingGroups.length === 0) {
+    const { data: users, error: usersError } = await supabase
+      .from('network_interests')
+      .select('user_id')
+      .eq('event_id', eventId);
+
+    console.log(users);
+
+    if (usersError) throw new Error(usersError.message);
+    if (!users || users.length === 0) return [];
+
+    const groupSize = 3;
+    const groupNum = Math.ceil(users.length / groupSize);
+
+    const groupIds = [];
+    for (let i = 0; i < groupNum; i++) {
+      const { data: newGroup, error: newGroupError } = await supabase
+        .from('event_groups')
+        .insert({ event_id: eventId })
+        .select('id')
+        .single();
+
+      console.log(newGroup);
+      if (newGroupError) throw new Error(newGroupError.message);
+      groupIds.push(newGroup.id);
+    }
+
+    let groupIndex = 0;
+    for (let i = 0; i < users.length; i += groupSize) {
+      const chunk = users.slice(i, i + groupSize);
+      const inserts = chunk.map(u => ({
+        group_id: groupIds[groupIndex],
+        user_id: u.user_id,
+      }));
+
+      console.log(inserts);
+
+      const { error: insertError } = await supabase
+        .from('group_users')
+        .insert(inserts);
+
+      if (insertError) throw new Error(insertError.message);
+      groupIndex++;
+    }
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+  const username = user.user_metadata?.username;
+  if (!userId) return [];
+
+  const { data: myGroups, error: myGroupError } = await supabase
+    .from('group_users')
+    .select('group_id')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (myGroupError) throw new Error(myGroupError.message);
+  if (!myGroups || myGroups.length === 0) return [];
+
+  const groupId = myGroups[0].group_id;
+
+  const { data: groupUsers, error: groupUsersError } = await supabase
+    .from('group_users')
+    .select(`
+      user_id,
+      has_arrived,
+      profiles(avatar)
+    `)
+    .eq('group_id', groupId);
+
+  console.log(groupUsers);
+
+  if (groupUsersError) throw new Error(groupUsersError.message);
+
+  return { data: groupUsers, username };
+};
+
+export const toggleArrival = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+  if (!userId) return;
+
+  const { data: myGroups, error: myGroupError } = await supabase
+    .from('group_users')
+    .select('group_id', 'has_arrived')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (myGroupError) throw new Error(myGroupError.message);
+  if (!myGroups || myGroups.length === 0) return [];
+
+  const { group_id, has_arrived } = myGroups[0];
+
+  const { error: updateError } = await supabase
+    .from('group_users')
+    .update({ has_arrived: !has_arrived, arrived_at: !has_arrived ? new Date() : null })
+    .eq('group_id', group_id)
+    .eq('user_id', userId);
+
+  if (updateError) throw new Error(updateError.message);
+};
+
+
