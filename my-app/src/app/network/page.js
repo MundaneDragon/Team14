@@ -3,19 +3,54 @@ import MainBody from "../components/mainBody"
 import CloseIcon from '@mui/icons-material/Close';
 import Link from "next/link";
 
+import { useState, useEffect } from "react";
+import { useAtom } from 'jotai';
+import { networkAtom } from "@/app/atoms/networkAtom";
+import { eventsAtom } from "@/app/atoms/eventsAtom";
+import { updateNetwork, fetchEvents, fetchNetwork } from '@/lib/fetch';
+
 
 
 export default function Network() {
+    const [networkingEvents, setNetworkingEvents] = useState([]);
+    const [network, setNetwork] = useAtom(networkAtom);
+    const [events, setEvents] = useAtom(eventsAtom);
+
+    useEffect(() => {
+        const handleFetch = async () => {
+            try {
+            const fetchedNetwork = await fetchNetwork();
+            const fetchedEvents = await fetchEvents();
+
+            setNetwork(fetchedNetwork.want_to_network);
+            setEvents(fetchedEvents);
+
+            setNetworkingEvents(
+                fetchedEvents.filter((event) =>
+                fetchedNetwork.want_to_network.includes(event.id)
+                )
+            );
+            } catch (err) {
+            alert(err.message);
+            }
+        };
+
+        handleFetch();
+    }, []);
+
+    console.log(networkingEvents);
+
+
     return (
         <MainBody>
             <div className="flex flex-col gap-4">
                 <h1 className="text-2xl font-semibold py-2 ml-7">
                     Planned Networking Events
                 </h1>
-                <div className="flex flex-col gap-2">
-                    <NetworkCard/>
-                    <NetworkCard/>
-                    <NetworkCard/>
+                <div className="flex flex-col w-full items-center gap-2">
+                    {networkingEvents.map((value, index) => {
+                        return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} />
+                    })}
                 </div>
             </div>
         </MainBody>
@@ -24,33 +59,80 @@ export default function Network() {
 
 
 
-function NetworkCard({data}) {
+function NetworkCard({data, setNetwork, userNetwork}) {
+    const { id, image, title, start_time, end_time, network } = data;
+    
+    const timeUntil = (startTime, endTime) => {
+        const now = new Date();
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        const diff = start - now;
+        const diffEnded = end - now;
+        const minutes = Math.floor(diff / (1000 * 60));
+        const minutesEnded = Math.floor(diffEnded / (1000 * 60));
+        if (minutes < 0 && minutesEnded >= 0) {
+            return "#A3FFAE";
+        } else if (minutes < 30 && minutesEnded >= 0) {
+            return "#FFDCA3";
+        } else {
+            return "#FFA3A3"
+        }
+    }
+    
+    const formatTimeUntil = (startTime) => {
+        const now = new Date();
+        const start = new Date(startTime);
+        const diff = start - now;
+
+        if (diff <= 0) return "Already started";
+
+        const minutes = Math.floor(diff / (1000 * 60));
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        if (minutes < 60) {
+            return `Happening in ${minutes} min`;
+        } else if (hours < 24) {
+            return `Happening in ${hours} hr${hours > 1 ? "s" : ""}`;
+        } else {
+            return `Happening in ${days} day${days > 1 ? "s" : ""}`;
+        }
+    }
+
+    console.log(data);
+
     return (
-    <Link className="flex flex-col md:flex-row gap-4 p-4 hover:bg-gray-400/20 cursor-pointer rounded-xl hover:scale-105 transition-all duration-300"
-    href="/network/2121">
+    <Link className="flex flex-col w-[95%] md:flex-row gap-4 p-4 hover:bg-gray-400/20 cursor-pointer rounded-xl hover:scale-105 transition-all duration-300"
+    href={`/network/${id}`}>
         <div className="flex gap-2 items-center">
-            <div className="h-10/12 w-1 bg-red-300 rounded-md">
+            <div className="h-10/12 w-1 rounded-md" style={{ backgroundColor: timeUntil(start_time, end_time) }}>
             </div>
-            <img src="/society.webp" className="w-80 h-42 rounded-md"/>
+            <div className={`w-80 h-40 bg-gray-400 rounded-xl bg-cover bg-center flex items-end p-2 `}
+                style={{ backgroundImage: `url(${image})` }}
+            ></div>
+            {/* <img src={image} className="w-80 h-42 rounded-md"/> */}
         </div>
-        <div className="flex flex-col justify-between">
-            <div className="">
-                <h2 className="font-semibold text-xl">
-                    2025 CEUS AGM
-                </h2>
-                <div className="mt-4 flex flex-col text-gray-400">
-                    <p>
-                        Happening in 10 min
-                    </p>
-                    <p>
-                        20 people planning to network
-                    </p>
-                </div>
+        <div className="flex flex-col gap-4">
+            <h2 className="font-semibold text-xl">
+                {title}
+            </h2>
+            <div className="flex flex-col text-gray-400">
+                <p>
+                    {formatTimeUntil(start_time)}
+                </p>
+                <p>
+                    {network.length} people planning to network
+                </p>
             </div>
-            <button className="bg-[#FFA3A3] w-64 rounded-md text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2"
+            <button className="bg-[#FFA3A3] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
             onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
+
+                    const newNetwork = userNetwork.filter((eventId => eventId !== id));
+            
+                    setNetwork(newNetwork);
+                    updateNetwork(newNetwork);
             }}>
                 Remove 
                 <div className="pt-0.5">
