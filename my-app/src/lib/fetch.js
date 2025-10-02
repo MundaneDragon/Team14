@@ -47,6 +47,10 @@ export const fetchFavourites = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id;
 
+  if (!userId) {
+    return { favourite_societies: [] };
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .select("favourite_societies")
