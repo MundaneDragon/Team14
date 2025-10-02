@@ -25,7 +25,7 @@ import { favouritesAtom  } from "../atoms/favouritesAtom";
 
 const SocietyCardSkeleton = () => {
   return (
-    <div className="w-full flex flex-col gap-4 items-center p-2 rounded-xl">
+    <div className="w-full flex flex-col gap-4 items-center p-2 rounded-xl animate-pulse">
       <div className="w-40 h-40 bg-gray-700 rounded-full" />
     </div>
   );

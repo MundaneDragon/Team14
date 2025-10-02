@@ -9,16 +9,34 @@ import { networkAtom } from "@/app/atoms/networkAtom";
 import { eventsAtom } from "@/app/atoms/eventsAtom";
 import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork } from '@/lib/fetch';
 
+const NetworkCardSkeleton = () => {
+  return (
+    <div className="flex flex-col w-[95%] md:flex-row gap-4 p-4 rounded-xl animate-pulse">
+      <div className="flex gap-2 items-center">
+        <div className="h-36 w-1 bg-gray-500 rounded-md" />
+        <div className="w-80 h-40 bg-gray-400 rounded-xl" />
+      </div>
 
+      <div className="flex flex-col gap-2 flex-1 mt-2 md:mt-0">
+        <div className="w-3/4 h-6 bg-gray-500 rounded-md" />
+        <div className="w-1/2 h-6 bg-gray-500 rounded-md" />
+        <div className="w-full h-4 bg-gray-500 rounded-md" />
+        <div className="w-2/3 h-4 bg-gray-500 rounded-md" />
+      </div>
+    </div>
+  )
+}
 
 export default function Network() {
     const [networkingEvents, setNetworkingEvents] = useState([]);
     const [network, setNetwork] = useAtom(networkAtom);
     const [events, setEvents] = useAtom(eventsAtom);
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         const handleFetch = async () => {
             try {
+                setLoading(true)
                 const fetchedNetwork = await fetchNetwork();
                 console.log(fetchedNetwork);
                 const fetchedEvents = await fetchEvents();
@@ -38,6 +56,8 @@ export default function Network() {
                 setNetworkingEvents(eventsWithNetwork);
             } catch (err) {
                 alert(err.message);
+            } finally {
+                setLoading(false)
             }
         };
 
@@ -54,7 +74,11 @@ export default function Network() {
                     Planned Networking Events
                 </h1>
                 <div className="flex flex-col w-full items-center gap-2">
-                    {networkingEvents.map((value, index) => {
+                    {loading
+                    ? Array.from({ length: 3 }).map((_, index) => (
+                        <NetworkCardSkeleton/>
+                        )) 
+                    : networkingEvents.map((value, index) => {
                         return <NetworkCard data={value} key={index} setNetwork={setNetwork} userNetwork={network} setNetworkingEvents={setNetworkingEvents} />
                     })}
                 </div>

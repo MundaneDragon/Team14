@@ -33,7 +33,7 @@ import { Search } from "lucide-react";
 
 const EventCardSkeleton = () => {
   return (
-    <div className="w-full transition-all duration-300 p-2 rounded-xl">
+    <div className="w-full transition-all duration-300 p-2 rounded-xl animate-pulse">
       <div className="w-full h-40 bg-gray-400 rounded-xl relative"></div>
     </div>
   );
