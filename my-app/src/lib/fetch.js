@@ -85,7 +85,7 @@ export const fetchNetwork = async () => {
 
   if (error) throw new Error(error.message);
 
-  return data;
+  return { user, fetchedNetwork: data };
 }
 
 export const fetchEventNetwork = async (eventId) => {
