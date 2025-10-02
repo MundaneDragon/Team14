@@ -8,12 +8,19 @@ import { useAtom } from 'jotai';
 import { networkAtom } from "@/app/atoms/networkAtom";
 import { eventsAtom } from "@/app/atoms/eventsAtom";
 import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork, updateHint, fetchNetworkHints} from '@/lib/fetch';
+import toast from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 
 const AddHintModal = ({ eventId, onClose }) => {
   const [hint, setHint] = useState("");
 
   const handleSave = () => {
-    updateHint(eventId, hint);
+    try {
+        updateHint(eventId, hint);
+        toast.success('Updated your hint!')
+    } catch (err) {
+        toast.error('Failed to update hint')
+    }
     setHint("");
     onClose();
   };
@@ -186,6 +193,7 @@ export default function Network() {
 
     return (
         <MainBody>
+            <Toaster position="bottom-left" />
             {loading
             ? Array.from({ length: 3 }).map((_, index) => (
                 <NetworkCardSkeleton key={index}/>

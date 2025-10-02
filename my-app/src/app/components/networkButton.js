@@ -3,6 +3,7 @@ import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import { useAtom } from 'jotai';
 import { networkAtom } from "@/app/atoms/networkAtom";
 import { updateNetwork } from '@/lib/fetch';
+import toast from 'react-hot-toast'
 
 export default function NetworkButton({ className = "", eventId }) {
   const [network, setNetwork] = useAtom(networkAtom);
@@ -17,7 +18,13 @@ export default function NetworkButton({ className = "", eventId }) {
         const newNetwork = [...network, eventId];
 
         setNetwork(newNetwork);
-        updateNetwork(eventId);
+
+        try {
+          updateNetwork(eventId)
+          toast.success('Added to your network!')
+        } catch (err) {
+          toast.error('Failed to add to network')
+        }
       }}
     >
       Want to Network <LanOutlinedIcon fontSize="small" />
