@@ -159,6 +159,18 @@ export const updateHint = async (eventId, hint) => {
   if (error) throw new Error(error.message);
 }
 
+export const fetchNetworkHints = async (eventId) => {
+  const { data, error } = await supabase
+    .from("network_interests")
+    .select("user_id, hint")
+    .eq("event_id", eventId)
+    .not("hint", "is", null)
+    .neq("hint", "")
+
+    if (error) throw new Error(error.message);
+    return data;   
+}
+
 export const uploadImage = async ({ e }) => {
   const file = e.target.files[0];
   if (!file) {

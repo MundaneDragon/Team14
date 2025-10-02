@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { useAtom } from 'jotai';
 import { networkAtom } from "@/app/atoms/networkAtom";
 import { eventsAtom } from "@/app/atoms/eventsAtom";
-import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork, updateHint } from '@/lib/fetch';
+import { deleteNetwork, fetchEvents, fetchNetwork, fetchEventNetwork, updateHint, fetchNetworkHints} from '@/lib/fetch';
 
 const AddHintModal = ({ eventId, onClose }) => {
   const [hint, setHint] = useState("");
@@ -62,6 +62,65 @@ const AddHintModal = ({ eventId, onClose }) => {
     </div>
   );
 };
+
+const ViewHintsModal = ({ eventId, onClose }) => {
+  const [hints, setHints] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadHints = async () => {
+      setLoading(true)
+      try {
+        const data = await fetchNetworkHints(eventId)
+        setHints(data)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    };
+
+    loadHints();
+  }, [eventId]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
+      <div
+        className="relative bg-gray-900 rounded-xl p-6 w-full max-w-md z-10 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-xl font-semibold text-white mb-4">Find these people!</h2>
+
+        {loading ? (
+          <p className="text-white/70">Loading...</p>
+        ) : hints.length === 0 ? (
+          <p className="text-white/70">No hints available yet.</p>
+        ) : (
+          <ul className="flex flex-col gap-3 max-h-64 overflow-y-auto">
+            {hints.map(( { hint }, index) => (
+              <li
+                key={index}
+                className="bg-gray-800 text-white p-2 rounded-md break-words"
+              >
+                {hint}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-6 flex justify-end">
+          <button
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const NetworkCardSkeleton = () => {
   return (
@@ -152,11 +211,18 @@ export default function Network() {
             </div>
 
             )}
-            {loggedIn && selectedEvent && (
+            {loggedIn && selectedEvent && !selectedEvent?.viewHints && (
                 <AddHintModal
                     eventId={selectedEvent}
                     onClose={() => setSelectedEvent(null)}
                 />
+            )}
+
+            {loggedIn && selectedEvent?.viewHints && (
+            <ViewHintsModal
+                eventId={selectedEvent.id}
+                onClose={() => setSelectedEvent(null)}
+            />
             )}
         </MainBody>
     )
@@ -234,7 +300,7 @@ function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents, setSel
             </div>
             <div className="flex flex-row gap-2">
                 <button
-                className="bg-[#A3CBFF] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#99bae4] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
+                className="bg-[#A3CBFF] w-32 rounded-full text-black py-2 cursor-pointer hover:bg-[#5a7ca0] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -242,6 +308,16 @@ function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents, setSel
                 }}
                 >
                 + Add Hint
+                </button>
+                <button
+                className="bg-[#A3CBFF] w-32 rounded-full text-black py-2 cursor-pointer hover:bg-[#5a7ca0] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedEvent({ id, viewHints: true })}
+                    }
+                >
+                View Hints
                 </button>
                 <button className="bg-[#FFA3A3] w-64 rounded-full text-black py-2 cursor-pointer hover:bg-[#f58888] flex justify-center items-center gap-2 transition-all duration-300 ease-in-out"
                 onClick={(e) => {
