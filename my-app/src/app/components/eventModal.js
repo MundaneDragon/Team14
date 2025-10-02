@@ -25,7 +25,7 @@ export default function EventModal({eventData}) {
         <h1 className="font-bold text-3xl">
           {eventData.title}
         </h1>
-        <p className="flex gap-1">
+        <p className="flex gap-1 md:flex-row flex-col">
           Hosted by 
           <Link className="underline hover:text-white/90" href={`/societies/${eventData.society_id}`}>
             {eventData.societies.name}

@@ -195,7 +195,7 @@ export default function Home() {
     <MainBody>
         <div>
           <div className="flex justify-between items-center pb-4 md:flex-row flex-col gap-4">
-            <div className="flex gap-2">
+            <div className="flex gap-2 md:flex-row flex-col">
               <SearchBar placeholder="Search Event or Society" setSearch={setSearch}/>
               <Select value={category} onValueChange={(val) => setCategory(val === "Any" ? "" : val)}>
                 <SelectTrigger className={category && "bg-white text-black"}>
