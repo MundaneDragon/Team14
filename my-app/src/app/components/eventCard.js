@@ -26,8 +26,9 @@ export default function EventCard({ eventData }) {
   return (
     <div className="w-full hover:scale-105 transition-all cursor-pointer group duration-300 hover:bg-gray-400/20 p-2 rounded-xl">
         <div className={`w-full h-40 bg-gray-400 rounded-xl bg-cover bg-center flex items-end p-2 `}
-          style={{ backgroundImage: `url(${image})` }}
+          style={{ backgroundImage: `url(${image})`}}
         >
+          <img src={image} alt="Image of the event" className="sr-only" />
           <div className="w-full justify-between text-center text-black text-xs gap-4 opacity-0 flex group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
             {/* <div className="w-full bg-[#A3CBFF] flex items-center justify-center py-2 rounded-full gap-1 hover:bg-[#99bae4] shadow-xl"
             onClick={(e) => {
@@ -45,7 +46,7 @@ export default function EventCard({ eventData }) {
         </div> */}
         <div className="flex gap-2 mt-4 items-center">
           {societies.image && (
-            <img src={societies.image} className="w-6 h-6 rounded-sm"/>
+            <img src={societies.image} alt="Society logo" className="w-6 h-6 rounded-sm"/>
           )}
           <div className="flex flex-col pl-1">
             <h2 className="font-semibold text-left">

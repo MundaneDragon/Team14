@@ -17,6 +17,7 @@ export default function SocietyCard({data, favourites, setFavourites}) {
         <div className={`w-40 h-40 bg-gray-500 rounded-full bg-cover bg-center flex items-end justify-end relative `}
           style={{ backgroundImage: `url(${data.image})` }}
         >
+            <img src={data.image} alt="Society logo" className="sr-only" />
             {(!data.image || data?.image.includes("profile.php")) && (
                 <div className="absolute right-[25%] bottom-[25%] flex flex-col w-[50%] h-[50%] text-black text-2xl font-bold items-center justify-center">
                     <span>NO</span>
