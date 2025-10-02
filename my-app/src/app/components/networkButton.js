@@ -7,7 +7,6 @@ import toast from 'react-hot-toast'
 
 export default function NetworkButton({ className = "", eventId }) {
   const [network, setNetwork] = useAtom(networkAtom);
-  const [clicked, setClicked] = useState(false);
   return (
     <button
       className={`w-full bg-[#A3CBFF] flex items-center justify-center py-2 rounded-full gap-1 hover:bg-[#99bae4] shadow-xl text-black cursor-pointer ${className} transition-all duration-300 ease-in-out`}
