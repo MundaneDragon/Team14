@@ -74,7 +74,7 @@ export default function Network() {
         <MainBody>
             {loading
             ? Array.from({ length: 3 }).map((_, index) => (
-                <NetworkCardSkeleton/>
+                <NetworkCardSkeleton key={index}/>
                 )) 
             : (loggedIn 
             ? <div className="flex flex-col gap-4">
@@ -153,8 +153,7 @@ function NetworkCard({data, setNetwork, userNetwork, setNetworkingEvents}) {
             </div>
             <div className={`w-80 h-40 bg-gray-400 rounded-xl bg-cover bg-center flex items-end p-2 `}
                 style={{ backgroundImage: `url(${image})` }}
-            ></div>
-            {/* <img src={image} className="w-80 h-42 rounded-md"/> */}
+            ><img src={data.image} alt="Image of the event" className="sr-only" /></div>
         </div>
         <div className="flex flex-col gap-4">
             <h2 className="font-semibold text-xl">
