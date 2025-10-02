@@ -51,12 +51,6 @@ export async function GET(request) {
     
     // Check if token is missing or is the string "NULL"
     if (fetchError || !userData || !userData.ical_token || userData.ical_token === 'NULL') {
-      console.log('Token needs to be created. Reason:', { 
-        hasFetchError: !!fetchError, 
-        hasUserData: !!userData, 
-        hasToken: !!userData?.ical_token,
-        tokenValue: userData?.ical_token 
-      });
       const newToken = crypto.randomBytes(32).toString('hex');
       
       const { data: newTokenData, error: updateError } = await supabase
