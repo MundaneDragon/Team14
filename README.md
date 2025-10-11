@@ -1,5 +1,5 @@
 # Outcome of DevSoc Hackathon
-- ** WON: People's Choice Awards $100 prize and Bucket Hat **
+- **WON: People's Choice Awards $100 prize and Bucket Hat**
 
 # Missing Link - Team 14 Statement
 
