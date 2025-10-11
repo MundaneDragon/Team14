@@ -1,9 +1,10 @@
 # Outcome of DevSoc Hackathon
-- **In Progress**
+- ** WON: People's Choice Awards $100 prize and Bucket Hat **
 
 # Missing Link - Team 14 Statement
 
 **Deployment Link:** https://missing-link-six.vercel.app/
+
 **Devpost Link** https://devpost.com/software/temp-i3rn49?ref_content=my-projects-tab&ref_feature=my_projects
 
 
